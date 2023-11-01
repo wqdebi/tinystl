@@ -11,3 +11,5 @@ day2
 编写构造和析构工具：construct() 和destroy()
 __type_traits<T>和value_type()后续会实现。
 第二个版本的destroy()函数使用萃取技术。当迭代器所指向之物可以析构的时候进行析构，反正什么也不做。
+
+std_alloc.h里面定义了分配器，目前只定义了一级分配器。是否定了__USE_MALLOC宏决定alloc是一级还是二级分配器。
