@@ -1,9 +1,9 @@
 #pragma once
-//´ËÄÚ´æ·ÖÅäÀà²»½¨ÒéÊ¹ÓÃ£¬Ê×ÏÈĞ§ÂÊ½ÏµÍ£¬ÇÒ¹¦ÄÜ¼òµ¥£¬½Ó¿Ú²»ÆëÈ«£¬Ã»ÓĞ·Ö¼¶·ÖÅäÆ÷
+//æ­¤å†…å­˜åˆ†é…ç±»ä¸å»ºè®®ä½¿ç”¨ï¼Œé¦–å…ˆæ•ˆç‡è¾ƒä½ï¼Œä¸”åŠŸèƒ½ç®€å•ï¼Œæ¥å£ä¸é½å…¨ï¼Œæ²¡æœ‰åˆ†çº§åˆ†é…å™¨
 
 #include<new>
-#include<cstddef> // °üº¬ptrdiff_t, size_t
-#include<cstdlib>//°üº¬exit()
+#include<cstddef> // åŒ…å«ptrdiff_t, size_t
+#include<cstdlib>//åŒ…å«exit()
 #include<climits>
 #include<iostream>
 namespace JJ {
@@ -14,16 +14,16 @@ namespace JJ {
 	}
 
 	template<typename T>
-	inline T* _allocate(ptrdiff_t size, T* t) //ÄÚ´æ·ÖÅäº¯Êı
+	inline T* _allocate(ptrdiff_t size, T* t) //å†…å­˜åˆ†é…å‡½æ•°
 	{
-		std::set_new_handler(0);//ÉèÖÃÄÚ´æ·ÖÅäÊ§°ÜÊ±ÔËĞĞµÄº¯Êı
-		//std::set_new_handler(no_memory); //Ê¹ÓÃno_memory×÷ÎªÄÚ´æ·ÖÅäÊ§°ÜÔËĞĞº¯Êı£¬ÈçÊ¹ÓÃ´ËĞĞ´úÂë£¬×¢ÊÍµôÏÂÃæµÄÊ§°ÜÔËĞĞ´úÂë¡£
+		//std::set_new_handler(0);//è®¾ç½®å†…å­˜åˆ†é…å¤±è´¥æ—¶è¿è¡Œçš„å‡½æ•°
+		std::set_new_handler(no_memory); //ä½¿ç”¨no_memoryä½œä¸ºå†…å­˜åˆ†é…å¤±è´¥è¿è¡Œå‡½æ•°ï¼Œå¦‚ä½¿ç”¨æ­¤è¡Œä»£ç ï¼Œæ³¨é‡Šæ‰ä¸‹é¢çš„å¤±è´¥è¿è¡Œä»£ç ã€‚
 		T* output = (T*)(::operator new((size_t)(size * sizeof(T))));
-		if (output == nullptr)
-		{
-			std::cerr << "out of memory" << std::endl;
-			exit(1);
-		}
+		//if (output == nullptr)
+		//{
+		//	std::cerr << "out of memory" << std::endl;
+		//	exit(1);
+		//}
 		return output;
 	}
 
@@ -33,7 +33,7 @@ namespace JJ {
 		::operator delete(buffer);
 	}
 
-	//ÔÚÌØ¶¨µÄµØÖ·pÉÏ¹¹ÔìÒ»¸öT1ÀàĞÍµÄ±äÁ¿
+	//åœ¨ç‰¹å®šçš„åœ°å€pä¸Šæ„é€ ä¸€ä¸ªT1ç±»å‹çš„å˜é‡
 	template<typename T1, typename T2>
 	inline void _construct(T1* p, const T2& value)
 	{
@@ -46,7 +46,7 @@ namespace JJ {
 		ptr -> ~T();
 	}
 
-	//allocatorÀà£¬ÓÃÓÚÄÚ´æ·ÖÅä¡£
+	//allocatorç±»ï¼Œç”¨äºå†…å­˜åˆ†é…ã€‚
 	template<typename T>
 	class allocator
 	{
@@ -65,13 +65,13 @@ namespace JJ {
 			typedef allocator<int> other;
 		};
 
-		//¹¹Ôìº¯Êı£¬´Ëº¯Êıµ÷ÓÃ_allocate·ÖÅäÄÚ´æ
+		//æ„é€ å‡½æ•°ï¼Œæ­¤å‡½æ•°è°ƒç”¨_allocateåˆ†é…å†…å­˜
 		pointer allocate(size_type n, const void* hint = 0)
 		{
 			return _allocate((difference_type)n, (pointer)0);
 		}
 
-		//µ÷ÓÃ_deallocate  ²ÎÊın²¢²»ÊÇÃ»ÓÃ£¬ËûÌá¹©ÏàÍ¬½Ó¿Ú£¬·ñÔòvectorÎŞ·¨Ê¹ÓÃ¸Ã·ÖÅäÆ÷
+		//è°ƒç”¨_deallocate  å‚æ•°nå¹¶ä¸æ˜¯æ²¡ç”¨ï¼Œä»–æä¾›ç›¸åŒæ¥å£ï¼Œå¦åˆ™vectoræ— æ³•ä½¿ç”¨è¯¥åˆ†é…å™¨
 		void deallocate(pointer p,size_type n)
 		{
 			_deallocate(p);
