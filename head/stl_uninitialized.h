@@ -2,9 +2,10 @@
 #include"std_construct.h"
 #include<string.h>
 #include<algorithm>
-//ÏÈ¶¨ÒåÒ»¸ö__true_type·ÀÖ¹±¨´í
-struct __true_type {};//ÒÔºó½«×¢ÊÍ
-struct __flase_type {};//ÒÔºó½«×¢ÊÍ
+#include"type_traits.h"
+//å…ˆå®šä¹‰ä¸€ä¸ª__true_typeé˜²æ­¢æŠ¥é”™
+//struct __true_type {};//ä»¥åå°†æ³¨é‡Š
+//struct __flase_type {};//ä»¥åå°†æ³¨é‡Š
 
 template<class OutputIterator, class Size, class T>
 OutputIterator fill_n(OutputIterator first, Size n, const T& value)
@@ -38,7 +39,7 @@ inline ForwardIterator __uninitialized_fill_n(ForwardIterator first, Size n,
 	return __uninitialized_fill_n_aux(first, n, x, is_POD());
 }
 
-//´Ófirst¹¹Ôìn¸öT
+//ä»firstæ„é€ nä¸ªT
 template<typename ForwardIterator, typename Size, typename T>
 inline ForwardIterator uninitialized_fill_n(ForwardIterator first, Size n, const T& x) {
 	return __uninitialized_fill_n(first, n, x, value_type(first));
@@ -80,7 +81,7 @@ inline ForwardIterator __uninitialized_copy(InputIterator first,
 	return __uninitialized_copy_aux(first, last, result, is_POD());
 }
 
-//ÔÚÄÚ´æ¿éÉÏ¹¹Ôì¶ÔÏó
+//åœ¨å†…å­˜å—ä¸Šæ„é€ å¯¹è±¡
 template<typename InputIterator, class ForwardIterator>
 ForwardIterator
 uninitialized_copy(InputIterator first, InputIterator last,
@@ -88,14 +89,14 @@ uninitialized_copy(InputIterator first, InputIterator last,
 	return __uninitialized_copy(first, last, result, value_type(result));
 }
 
-//Õë¶Ôchar *µÄÌØ»¯°æ±¾
+//é’ˆå¯¹char *çš„ç‰¹åŒ–ç‰ˆæœ¬
 inline char* uninitialized_copy(const char* first, const char* last, char* result)
 {
 	memmove(result, first, last - first);
 	return result + (last - first);
 }
 
-//Õë¶Ôwchar_t*µÄÌØ»¯°æ±¾
+//é’ˆå¯¹wchar_t*çš„ç‰¹åŒ–ç‰ˆæœ¬
 inline wchar_t* uninitialized_copy(const wchar_t* first, const wchar_t* last, wchar_t* result)
 {
 	memmove(result, first, sizeof(wchar_t) * (last - first));
@@ -123,7 +124,7 @@ inline void __uninitialized_fill(ForwardIterator first, ForwardIterator last,
 	__uninitialized_fill__aux(first, last, x, is_POD());
 }
 
-//ÔÚfistµ½lastµÄ¿ªÇø¼äÄÚ¹¹ÔìX
+//åœ¨fiståˆ°lastçš„å¼€åŒºé—´å†…æ„é€ X
 template<class ForwardIterator, class T>
 void uninitialized_fill(ForwardIterator first, ForwardIterator last,
 	const T& x) {
