@@ -1,22 +1,22 @@
 #pragma once
 #include<new.h>
-
-//ÔÚÖ¸Õëp³ö¹¹½¨Ò»¸öT2ÀàĞÍµÄvalue¶ÔÏó
+#include"type_traits.h"
+//åœ¨æŒ‡é’ˆpå‡ºæ„å»ºä¸€ä¸ªT2ç±»å‹çš„valueå¯¹è±¡
 template<typename T1, typename T2>
 inline void construct(T1* p, const T2& value)
 {
 	new(p)T1(value);
 }
 
-//µ÷ÓÃµ¥¸ö¶ÔÏóµÄÎö¹¹
+//è°ƒç”¨å•ä¸ªå¯¹è±¡çš„ææ„
 template<typename T>
 inline void destroy(T* pointer)
 {
 	pointer -> ~T();
 }
 
-//destroyµÚ¶ş¸ö°æ±¾£¬½ÓÊÜÁ½¸öµü´úÆ÷£¬Îö¹¹ÆäÖĞµÄ¶ÔÏó
-//ÀûÓÃÁËİÍÈ¡»úÖÆ
+//destroyç¬¬äºŒä¸ªç‰ˆæœ¬ï¼Œæ¥å—ä¸¤ä¸ªè¿­ä»£å™¨ï¼Œææ„å…¶ä¸­çš„å¯¹è±¡
+//åˆ©ç”¨äº†èƒå–æœºåˆ¶
 template<typename ForwardIterator>
 inline void destroy(ForwardIterator first, ForwardIterator last)
 {
@@ -30,8 +30,8 @@ inline void __destory(ForwardIterator first, ForwardIterator last, T*)
 	__destory_aux(first, last, trivial_destructor());
 }
 
-struct __false_type {};//ÔİÊ±ÏÈĞèÒª£¬ÔÚºóÃæĞ´µü´úÆ÷µÄÊ±ºòÔÚ¾ßÌåĞ´³ö
-struct __true_type {};//ÒÔºóĞèÒª×¢ÊÍÕâÁ½ĞĞ´úÂë£¬ÕâÁ½ĞĞ´úÂëÊ¹ÓÃİÍÈ¡»úÖÆºÍº¯ÊıÖØÔØ£¬Ö±½Óµ÷ÓÃÏàÓ¦µÄº¯Êı¡£
+//struct __false_type {};//æš‚æ—¶å…ˆéœ€è¦ï¼Œåœ¨åé¢å†™è¿­ä»£å™¨çš„æ—¶å€™åœ¨å…·ä½“å†™å‡º
+//struct __true_type {};//ä»¥åéœ€è¦æ³¨é‡Šè¿™ä¸¤è¡Œä»£ç ï¼Œè¿™ä¸¤è¡Œä»£ç ä½¿ç”¨èƒå–æœºåˆ¶å’Œå‡½æ•°é‡è½½ï¼Œç›´æ¥è°ƒç”¨ç›¸åº”çš„å‡½æ•°ã€‚
 
 template<class ForwardIterator>
 inline void __destory_aux(ForwardIterator first, ForwardIterator last, __false_type)
@@ -40,10 +40,10 @@ inline void __destory_aux(ForwardIterator first, ForwardIterator last, __false_t
 		destroy(&*first);
 }
 
-//Ê²Ã´Ò²²»×ö
+//ä»€ä¹ˆä¹Ÿä¸åš
 template<class ForwardIterator>
 inline void __destory_aux(ForwardIterator first, ForwardIterator last, __true_type) {}
 
-//ÌØ»¯°æ
+//ç‰¹åŒ–ç‰ˆ
 inline void destroy(char*, char*) {}
 inline void destroy(wchar_t*, wchar_t*) {}
