@@ -24,3 +24,8 @@ day4
 修复了stl_alloc.h的一些错误，现在分配器可以直接使用（但不适配现代版本的stl）
 上传了新文件stl_uninitialized.h，里面包含三个模板函数uninitialized_copy，uninitialized_fill，uninitialized_fill_n
 用于在一块开辟的内存上构造对象，所有的的函数都使用了萃取方法，根据要构造对象有无拷贝构造函数来调用相应的函数。
+
+day5
+
+上传了stl_iterator.h文件，编写了五种迭代器。并利用写出了萃取机iterator_traits，利用萃取技术完成distance函数和advance
+函数。
