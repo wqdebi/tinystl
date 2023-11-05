@@ -1,5 +1,5 @@
 #pragma once
-//用于判断对象是否有构造、复制构造、默认构造等等函数的struct
+//鐢ㄤ簬鍒ゆ柇瀵硅薄鏄惁鏈夋瀯閫犮�佸鍒舵瀯閫犮�侀粯璁ゆ瀯閫犵瓑绛夊嚱鏁扮殑struct
 struct __true_type {};
 struct __false_type {};
 
