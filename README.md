@@ -32,5 +32,6 @@ day5
 添加了type_traits.h。用来提供__true_type和__false_type。同时，type_traits用来判断一个对象有没有默认构造，拷贝构造、析构函数等
 
 day6
+
 修正了stl_uninitialized.h的一些错误，以及std_construct.h中的一些错误。上传了stl_vector.h，该文件定义了vector容器。经过测试
 该容器运行正常。
