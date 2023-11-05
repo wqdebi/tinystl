@@ -30,3 +30,6 @@ day5
 上传了stl_iterator.h文件，编写了五种迭代器。并利用写出了萃取机iterator_traits，利用萃取技术完成distance函数和advance
 函数。更正了stl_uninitialized.h和std_construct.h。
 添加了type_traits.h。用来提供__true_type和__false_type。同时，type_traits用来判断一个对象有没有默认构造，拷贝构造、析构函数等
+
+day6
+修正了stl_uninitialized.h的一些错误
