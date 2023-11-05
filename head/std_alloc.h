@@ -91,7 +91,7 @@ public:
         obj* result;
         //如果大于128调用一级分配器
         if (n > (size_t)__MAX_BYTES) {
-            return (__malloc_alloc_template<0>:: allocate(n));
+            return (__malloc_alloc_template<0>::allocate(n));
         }
         my_free_list = free_list + FREELISTS_INDEX(n);
         result = *my_free_list;
@@ -104,7 +104,7 @@ public:
         return result;
     }
     static void deallocate(void* p, size_t n) {
-        obj* q = (obj * )p;
+        obj* q = (obj*)p;
         obj* volatile* my_free_list;
         //如果大于128调用一级分配器
         if (n > (size_t)__MAX_BYTES)
@@ -138,14 +138,14 @@ void (*__malloc_alloc_template<inst>::__malloc_alloc_oom_handler)() = 0;
 template<int inst>
 void* __malloc_alloc_template<inst>::oom_malloc(size_t n)
 {
-    void (* my_malloc_handler)();
+    void (*my_malloc_handler)();
     void* result;
     for (;;)
     {
         my_malloc_handler = __malloc_alloc_oom_handler;
         if (0 == my_malloc_handler)
-        __THROW_BAD_ALLOC
-        (*my_malloc_handler)();
+            __THROW_BAD_ALLOC
+            (*my_malloc_handler)();
         result = malloc(n);
         if (result)
             return result;
@@ -153,7 +153,7 @@ void* __malloc_alloc_template<inst>::oom_malloc(size_t n)
 }
 
 template<int inst>
-void* __malloc_alloc_template<inst>::oom_realloc(void *p, size_t n)
+void* __malloc_alloc_template<inst>::oom_realloc(void* p, size_t n)
 {
     void (*my_malloc_handler)();
     void* result;
@@ -161,8 +161,8 @@ void* __malloc_alloc_template<inst>::oom_realloc(void *p, size_t n)
     {
         my_malloc_handler = __malloc_alloc_oom_handler;
         if (0 == my_malloc_handler)
-        __THROW_BAD_ALLOC
-        (*my_malloc_handler)();
+            __THROW_BAD_ALLOC
+            (*my_malloc_handler)();
         result = realloc(p, n);
         if (result)
             return result;
@@ -183,14 +183,14 @@ size_t __default_alloc_template<threads, inst>::heap_size = 0;
 
 template<bool threads, int inst>
 typename __default_alloc_template<threads, inst>::obj* volatile
-        __default_alloc_template<threads, inst>::free_list[__NFREELISTS] = {
-                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        };
+__default_alloc_template<threads, inst>::free_list[__NFREELISTS] = {
+        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+};
 
 
 //chunk_alloc从内存池取空间给freelist用
 template<bool threads, int inst>
-char *
+char*
 __default_alloc_template<threads, inst>::chunk_alloc(size_t size, int& nobjs)
 {
     char* result;
@@ -263,7 +263,7 @@ void* __default_alloc_template<threads, inst>::refill(size_t n)
     int nobjs = 20;
     char* chunk = chunk_alloc(n, nobjs);
     obj* volatile* my_free_list;
-    obj *result;
+    obj* result;
     obj* current_obj, * next_obj;
     int i;
     //如果只分配了一块，则直接返回，不用加到free list表中
@@ -293,6 +293,7 @@ void* __default_alloc_template<threads, inst>::refill(size_t n)
 //多一层包装，在vector<int, Alloc = alloc>的时候会使用alloc构建一个simple_alloc。多一层封装
 template<class T, class Alloc>
 class simple_alloc {
+public:
     static T* allocate(size_t n)
     {
         return 0 == n ? 0 : (T*)Alloc::allocate(n * sizeof(T));
@@ -304,7 +305,7 @@ class simple_alloc {
     static void deallocate(T* p, size_t n)
     {
         if (0 != n)
-        Alloc::deallocate(p, n * sizeof(T));
+            Alloc::deallocate(p, n * sizeof(T));
     }
     static void deallocate(T* p)
     {
