@@ -26,7 +26,7 @@ inline ForwardIterator __uninitialized_fill_n_aux(ForwardIterator first,
 template<class ForwardIterator, class Size, class T>
 inline ForwardIterator __uninitialized_fill_n_aux(ForwardIterator first,
 	Size n, const T& x, __false_type) {
-	ForwardIterator cut = first;
+	ForwardIterator cur = first;
 	for (; n > 0; --n, ++cur)
 		construct(&*cur, x);
 	return cur;
@@ -105,7 +105,7 @@ inline wchar_t* uninitialized_copy(const wchar_t* first, const wchar_t* last, wc
 
 template<class ForwardIterator, class T>
 inline void __uninitialized_fill__aux(ForwardIterator first,
-	ForwardIterator last, const T& x, __true_type){
+	ForwardIterator last, const T& x, __true_type) {
 	std::fill(first, last, x);
 }
 template<class ForwardIterator, class T>
