@@ -1,6 +1,6 @@
 #pragma once
 //此内存分配类不建议使用，首先效率较低，且功能简单，接口不齐全，没有分级分配器
-
+//不符合STL规格，在某些编译器上不可以使用比如msvc
 #include<new>
 #include<cstddef> // 包含ptrdiff_t, size_t
 #include<cstdlib>//包含exit()
@@ -16,14 +16,14 @@ namespace JJ {
 	template<typename T>
 	inline T* _allocate(ptrdiff_t size, T* t) //内存分配函数
 	{
-		//std::set_new_handler(0);//设置内存分配失败时运行的函数
-		std::set_new_handler(no_memory); //使用no_memory作为内存分配失败运行函数，如使用此行代码，注释掉下面的失败运行代码。
+		std::set_new_handler(0);//设置内存分配失败时运行的函数
+		//std::set_new_handler(no_memory); //使用no_memory作为内存分配失败运行函数，如使用此行代码，注释掉下面的失败运行代码。
 		T* output = (T*)(::operator new((size_t)(size * sizeof(T))));
-		//if (output == nullptr)
-		//{
-		//	std::cerr << "out of memory" << std::endl;
-		//	exit(1);
-		//}
+		if (output == nullptr)
+		{
+			std::cerr << "out of memory" << std::endl;
+			exit(1);
+		}
 		return output;
 	}
 
@@ -71,8 +71,8 @@ namespace JJ {
 			return _allocate((difference_type)n, (pointer)0);
 		}
 
-		//调用_deallocate  参数n并不是没用，他提供相同接口，否则vector无法使用该分配器
-		void deallocate(pointer p,size_type n)
+		//调用_deallocate
+		void deallocate(pointer p, size_type n)
 		{
 			_deallocate(p);
 		}
