@@ -2,7 +2,7 @@
 #include"stl_iterator.h"
 #include "std_alloc.h"
 #include "std_construct.h"
-//listµÄ½Úµã
+//listçš„èŠ‚ç‚¹
 template<class T>
 struct __list_node {
 	typedef void* void_pointer;
@@ -11,7 +11,7 @@ struct __list_node {
 	T data;
 };
 
-//listµü´úÆ÷
+//listè¿­ä»£å™¨
 template<class T, class Ref, class Ptr>
 struct __list_iterator
 {
@@ -21,7 +21,7 @@ struct __list_iterator
 	typedef T								value_type;
 	typedef Ptr								pointer;
 	typedef Ref								reference;
-	typedef __list_node<T>*					link_type;
+	typedef __list_node<T>* link_type;
 	typedef size_t							size_type;
 	typedef ptrdiff_t						difference_type;
 
@@ -58,15 +58,15 @@ class list {
 protected:
 	typedef __list_node<T>						list_node;
 	typedef simple_alloc<list_node, Alloc>		list_node_allocator;
-	typedef T&									reference;
-	typedef T*									pointer;
+	typedef T& reference;
+	typedef T* pointer;
 	typedef __list_iterator<T, T&, T*>			iterator;
 	typedef size_t								size_type;
 	typedef ptrdiff_t							difference_type;
 	typedef bidirectional_iterator_tag			iterator_category;
 	typedef T									value_type;
 public:
-	typedef list_node*							link_type;
+	typedef list_node* link_type;
 protected:
 	link_type node;
 public:
@@ -74,15 +74,15 @@ public:
 	iterator end() { return node; }
 	bool empty() { return node->next == node; }
 	size_type size() {
-		size_type result = 0;
-		distance(begin(), end(), result);
+		difference_type result = 0;
+		result = distance(begin(), end());
 		return result;
 	}
 	reference front() { return *begin(); }
 	reference back() { return *(--end()); }
 protected:
 	link_type get_node() { return list_node_allocator::allocate(); }
-	void put_node() { list_node_allocator::deallocate(p); }
+	void put_node(link_type p) { list_node_allocator::deallocate(p); }
 	link_type create_node(const T& x) {
 		link_type p = get_node();
 		construct(&p->data, x);
@@ -161,7 +161,7 @@ public:
 		iterator last = end();
 		if (first == last)return;
 		iterator next = first;
-		while(++next != last)
+		while (++next != last)
 		{
 			if (*first == *next)
 				erase(next);
@@ -186,7 +186,7 @@ public:
 	void splice(iterator position, list& x)
 	{
 		if (!x.empty())
-			transfer(position, x.begin(), x.end();
+			transfer(position, x.begin(), x.end());
 	}
 	void splice(iterator position, list&, iterator i)
 	{
