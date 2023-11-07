@@ -39,3 +39,6 @@ day6
 day7
 
 提交了stl_list.h
+
+day8
+修正了list的一些bug，但任然有bug。等时间充足是修复。
