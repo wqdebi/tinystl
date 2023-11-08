@@ -5,7 +5,7 @@
 //list的节点
 template<class T>
 struct __list_node {
-	typedef void* void_pointer;
+	typedef __list_node<T>* void_pointer;
 	void_pointer prev;
 	void_pointer next;
 	T data;
@@ -129,7 +129,8 @@ public:
 		erase(begin());
 	}
 	void pop_back() {
-		erase(end());
+		iterator tmp = end();
+		erase(--tmp);
 	}
 	void clear()
 	{
@@ -137,7 +138,7 @@ public:
 		while (cur != node)
 		{
 			link_type tmp = cur;
-			cur = (link_type)tmp->next;
+			cur = (link_type)cur->next;
 			destroy_node(tmp);
 		}
 		node->next = node;
@@ -229,26 +230,27 @@ public:
 			transfer(begin(), old, first);
 		}
 	}
-	//void sort()
-	//{
-	//	if (node->next == node || link_type(node->next)->next == node)return;
-	//	list<T, Alloc> carry;
-	//	list<T, Alloc> count[64];
-	//	int fill = 0;
-	//	while (!empty())
-	//	{
-	//		carry.splice(carry.begin(), *this, begin());
-	//		int i = 0;
-	//		while (i < fill && !count[i].empty())
-	//		{
-	//			count[i].merge(carry);
-	//			std::swap(carry, count[i]);
-	//		}
-	//		std::swap(carry, count[i]);
-	//		if (i == fill)++fill;
-	//	}
-	//	for (int i = 1; i < fill; ++i)
-	//		count[i].merge(count[i - 1]);
-	//	swap(count[fill - 1]);
-	//}
+	void swap(list<T, Alloc>& x) { std::swap(node, x.node); }
+	void sort()
+	{
+		if (node->next == node || link_type(node->next)->next == node)return;
+		list<T, Alloc> carry;
+		list<T, Alloc> count[64];
+		int fill = 0;
+		while (!empty())
+		{
+			carry.splice(carry.begin(), *this, begin());
+			int i = 0;
+			while (i < fill && !count[i].empty())
+			{
+				count[i].merge(carry);
+				carry.swap(count[i++]);
+			}
+			carry.swap(count[i]);		
+			if (i == fill)++fill;
+		}
+		for (int i = 1; i < fill; ++i)	
+			count[i].merge(count[i - 1]);
+		swap(count[fill - 1]);
+	}
 };
