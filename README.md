@@ -42,3 +42,6 @@ day7
 
 day8
 修正了list的一些bug，但任然有bug。等时间充足是修复。
+
+day9
+list已经可以正常使用
