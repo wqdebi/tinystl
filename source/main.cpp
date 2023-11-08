@@ -148,18 +148,57 @@
 //    return 0;
 //}
 //day 8
+#include<deque>
 #include<iostream>
 #include"stl_list.h"
 int main()
 {
     list<int> a;
-    a.push_back(8);
-    a.push_front(9);
-    a.push_back(8);
-    a.push_front(9);
-    a.pop_back();
-    a.pop_front();
+    //std::cout << a.size();
+    //a.push_back(8);
+    //a.push_front(9);
+    //a.push_back(8);
+    //a.push_front(9);
+    //a.pop_back();
+    //a.pop_front();
+    //std::cout << a.front() << std::endl;
+    //auto it = a.begin();
+    //std::cout << *it;
+    a.push_back(1);
+    a.push_back(2);
+    a.push_back(3);
+    list<int> b;
+    b.push_back(1);
+    b.push_back(2);
+    b.push_back(3);
+    a.merge(b);
+    for (auto it = a.begin(); it != a.end(); ++it)
+        std::cout << *it << " ";
+    std::cout << std::endl;
+    a.reverse();
+    for (auto it = a.begin(); it != a.end(); ++it)
+        std::cout << *it << " ";
+    std::cout << std::endl;
+    a.unique();
+    for (auto it = a.begin(); it != a.end(); ++it)
+        std::cout << *it << " ";
+    std::cout << std::endl;
     std::cout << a.size();
+    // 
+    //list<int> c;
+    //c.push_back(2);
+    //c.push_back(1);
+    //c.push_back(3);
+    //c.push_back(0);
+    //c.push_back(5);
+    //c.sort();
+    //for (auto it = c.begin(); it != c.end(); ++it)
+    //    std::cout << *it << " ";
+    //std::cout << std::endl;
+
+
+    //auto it = c.begin();
+    //std::cout << *it << std::endl; 
     //for (auto it1 = a.begin(), it2 = a.end(); it1 != it2; ++it1)
     //{
     //    std::cout << *it1 << std::endl;
