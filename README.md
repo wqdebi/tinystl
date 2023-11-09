@@ -41,8 +41,15 @@ day7
 提交了stl_list.h
 
 day8
+
 修正了list的一些bug，但任然有bug。等时间充足是修复。
 
 day9
+
 list已经可以正常使用
 上传了stl_deque.h
+
+day10
+
+修复了deque的bug，修正了stl_uninitialized.h的一些bug。添加了deque的测试代码。
+
