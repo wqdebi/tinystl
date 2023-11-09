@@ -158,8 +158,8 @@ public:
 		return *tmp;
 	}
 	size_type size() { 
-		if (empty())
-			return 0;
+		//if (empty())
+		//	return 0;
 		return finish - start; }
 
 	size_type max_size() { return size_type(-1); }
