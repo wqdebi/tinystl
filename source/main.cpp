@@ -148,12 +148,12 @@
 //    return 0;
 //}
 //day 8
-#include<deque>
-#include<iostream>
-#include"stl_list.h"
-int main()
-{
-    list<int> a;
+//#include<deque>
+//#include<iostream>
+//#include"stl_list.h"
+//int main()
+//{
+//    list<int> a;
     //std::cout << a.size();
     //a.push_back(8);
     //a.push_front(9);
@@ -164,26 +164,26 @@ int main()
     //std::cout << a.front() << std::endl;
     //auto it = a.begin();
     //std::cout << *it;
-    a.push_back(1);
-    a.push_back(2);
-    a.push_back(3);
-    list<int> b;
-    b.push_back(1);
-    b.push_back(2);
-    b.push_back(3);
-    a.merge(b);
-    for (auto it = a.begin(); it != a.end(); ++it)
-        std::cout << *it << " ";
-    std::cout << std::endl;
-    a.reverse();
-    for (auto it = a.begin(); it != a.end(); ++it)
-        std::cout << *it << " ";
-    std::cout << std::endl;
-    a.unique();
-    for (auto it = a.begin(); it != a.end(); ++it)
-        std::cout << *it << " ";
-    std::cout << std::endl;
-    std::cout << a.size();
+    //a.push_back(1);
+    //a.push_back(2);
+    //a.push_back(3);
+    //list<int> b;
+    //b.push_back(1);
+    //b.push_back(2);
+    //b.push_back(3);
+    //a.merge(b);
+    //for (auto it = a.begin(); it != a.end(); ++it)
+    //    std::cout << *it << " ";
+    //std::cout << std::endl;
+    //a.reverse();
+    //for (auto it = a.begin(); it != a.end(); ++it)
+    //    std::cout << *it << " ";
+    //std::cout << std::endl;
+    //a.unique();
+    //for (auto it = a.begin(); it != a.end(); ++it)
+    //    std::cout << *it << " ";
+    //std::cout << std::endl;
+    //std::cout << a.size();
     // 
     //list<int> c;
     //c.push_back(2);
@@ -203,4 +203,37 @@ int main()
     //{
     //    std::cout << *it1 << std::endl;
     //}
+//}
+//day 10
+#include"stl_deque.h"
+#include<iostream>
+int main() {
+    deque<int> d(5,3);
+    std::cout << d.size() << std::endl;
+    std::cout << d[2] << std::endl;
+    for (auto it = d.begin(); it != d.end(); ++it)
+        std::cout << *it << " ";
+    std::cout << std::endl;
+    deque<int> c;
+    std::cout << c.empty() << std::endl;
+    for(int i = 0; i < 100; ++i)
+        c.push_back(114);
+    std::cout << c.size() << std::endl;
+    std::cout << c[90] << std::endl;
+    c.pop_back();
+    std::cout << c.size() << std::endl;
+    c.push_front(5);
+    std::cout << c[0] << std::endl;
+    c.pop_front();
+    std::cout << c[0] << std::endl;
+    std::cout << c.front() << std::endl;
+    c.push_front(5);
+    c.push_front(5);
+    c.push_back(1484);
+    for (auto it = c.begin(); it != c.end(); ++it)
+        std::cout << *it << " ";
+    std::cout << std::endl;
+    c.erase(c.begin(), c.end());
+    std::cout << c.size() << std::endl;
+    return 0;
 }
