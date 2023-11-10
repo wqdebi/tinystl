@@ -65,12 +65,12 @@ struct __deque_iterator {
 		return tmp;
 	}
 	self& operator--() {
-		--cur;
 		if (cur == first)
 		{
 			set_node(node - 1);
 			cur = first;
 		}
+		--cur;
 		return *this;
 	}
 	self operator--(int) {
