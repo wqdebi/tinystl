@@ -14,9 +14,9 @@ public:
     typedef ptrdiff_t		difference_type;
 protected:
     typedef simple_alloc<value_type, Alloc> data_allocator;
-    iterator start;//表示使用空间的头
-    iterator finish;//表示使用空间的尾
-    iterator end_of_storage;//表示可用空间的尾
+    iterator start;//琛ㄧず浣跨敤绌洪棿鐨勫ご
+    iterator finish;//琛ㄧず浣跨敤绌洪棿鐨勫熬
+    iterator end_of_storage;//琛ㄧず鍙敤绌洪棿鐨勫熬
     void insert_aux(iterator position, const T& x);
     void deallocate() {
         if (start)
@@ -46,6 +46,14 @@ public:
     ~vector() {
         destroy(start, finish);
         deallocate();
+    }
+    template<class InputIterator>
+    vector(InputIterator first, InputIterator last)
+    {
+        for (InputIterator i = first; i != last; ++i)
+        {
+            push_back(*i);
+        }
     }
     referfence front() { return *begin(); }
     referfence back() { return *(end() - 1); }
