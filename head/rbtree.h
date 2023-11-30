@@ -6,6 +6,7 @@
 #include <functional>
 #include "rb_tree_iterator.h"
 #include "std_alloc.h"
+#include "std_construct.h"
 
 template <class Key, class Value, class KeyOfValue, class Compare, class Alloc = alloc>
 class rb_tree {
@@ -31,11 +32,11 @@ public:
     using const_iterator = rb_tree_iterator<value_type, const_reference, const_pointer>;
 
 private: // operation of node
-    // ·ÖÅäÄÚ´æ
+    // åˆ†é…å†…å­˜
     link_type get_node() {
         return rb_tree_node_allocator::allocate();
     }
-    // ÊÍ·ÅÄÚ´æ
+    // é‡Šæ”¾å†…å­˜
     void put_node(link_type p) {
         rb_tree_node_allocator::deallocate(p);
     }
@@ -43,7 +44,7 @@ private: // operation of node
     link_type create_node(const value_type& val) {
         link_type temp = get_node();
         try {
-            new (&temp->value_field) value_type(val);
+            construct(&temp->value_field, val);
 
         }
         catch (std::exception&) {
@@ -51,7 +52,7 @@ private: // operation of node
         }
         return temp;
     }
-    // ¿ËÂ¡½Úµã£¬°üÀ¨ÑÕÉ«
+    // å…‹éš†èŠ‚ç‚¹ï¼ŒåŒ…æ‹¬é¢œè‰²
     link_type clone_node(link_type p) {
         link_type temp = create_node(p->value_field);
         temp->color = p->color;
@@ -62,8 +63,7 @@ private: // operation of node
 
 
     void destroy_node(link_type p) {
-        Value* vp = &(p->value_field);
-        vp->~Value();
+        destroy(&p->value_field);
         put_node(p);
     }
 
@@ -73,30 +73,30 @@ private: // data member
     Compare key_compare;
 
 private: // data member getter && setter
-    // header³ÉÔ±
-    link_type& root() const noexcept {
-        return reinterpret_cast<link_type&>(header->parent);
+    // headeræˆå‘˜
+    link_type& root() const{
+        return (link_type&)(header->parent);
     }
-    // head->leftÖ¸ÏòµÄÊÇ×îĞ¡Öµ
-    link_type& leftmost() const noexcept {
-        return reinterpret_cast<link_type&>(header->left);
+    // head->leftæŒ‡å‘çš„æ˜¯æœ€å°å€¼
+    link_type& leftmost() const{
+        return (link_type&)(header->left);
     }
-    // head->rightÖ¸ÏòµÄÊÇ×î´óÖµ
-    link_type& rightmost() const noexcept {
-        return reinterpret_cast<link_type&>(header->right);
+    // head->rightæŒ‡å‘çš„æ˜¯æœ€å¤§å€¼
+    link_type& rightmost() const{
+        return (link_type&)(header->right);
     }
 
-    // ÆÕÍ¨nodeµÄ¿ìËÙ·ÃÎÊÓëÉè¶¨
-    //  ¾²Ì¬³ÉÔ±º¯ÊıµÄ×÷ÓÃÔÚÓÚ£ºµ÷ÓÃÕâ¸öº¯Êı²»»á
-    // ·ÃÎÊ»òÕßĞŞ¸ÄÈÎºÎ¶ÔÏó£¨·Çstatic£©Êı¾İ³ÉÔ±¡£
+    // æ™®é€šnodeçš„å¿«é€Ÿè®¿é—®ä¸è®¾å®š
+    //  é™æ€æˆå‘˜å‡½æ•°çš„ä½œç”¨åœ¨äºï¼šè°ƒç”¨è¿™ä¸ªå‡½æ•°ä¸ä¼š
+    // è®¿é—®æˆ–è€…ä¿®æ”¹ä»»ä½•å¯¹è±¡ï¼ˆéstaticï¼‰æ•°æ®æˆå‘˜ã€‚
     static link_type& left(link_type p) {
-        return reinterpret_cast<link_type&>(p->left);
+        return (link_type&)(p->left);
     }
     static link_type& right(link_type p) {
-        return reinterpret_cast<link_type&>(p->right);
+        return (link_type&)(p->right);
     }
     static link_type& parent(link_type p) {
-        return reinterpret_cast<link_type&>(p->parent);
+        return (link_type&)(p->parent);
     }
     static reference& value(link_type p) {
         return p->value_field;
@@ -106,35 +106,33 @@ private: // data member getter && setter
     }
     static color_type& color(link_type p) { return p->color; }
 
-    // base_node µÄ¿ìËÙ·ÃÎÊºÍÉè¶¨
+    // base_node çš„å¿«é€Ÿè®¿é—®å’Œè®¾å®š
     static link_type& left(base_ptr p) {
-        return reinterpret_cast<link_type&>(p->left);
+        return (link_type&)(p->left);
     }
     static link_type& right(base_ptr p) {
-        return reinterpret_cast<link_type&>(p->right);
+        return (link_type&)(p->right);
     }
     static link_type& parent(base_ptr p) {
-        return reinterpret_cast<link_type&>(p->parent);
+        return (link_type&)(p->parent);
     }
 
-    static reference& value(base_ptr p) {
-        return reinterpret_cast<link_type&>(p)->value_field;
+    static reference value(base_ptr p) {
+        return ((link_type)p)->value_field;
     }
     static const Key& key(base_ptr p) {
-        return KeyOfValue()(value(reinterpret_cast<link_type&>(p)));
+        return KeyOfValue()(value(link_type(p)));
     }
     static color_type& color(base_ptr p) {
-        return reinterpret_cast<link_type&>(p)->color;
+        return (color_type&)(link_type(p)->color);
     }
 
-    // ÇóÈ¡¼«Öµ
+    // æ±‚å–æå€¼
     static link_type minimum(link_type p) {
-        return reinterpret_cast<link_type>(
-            __rb_tree_node_base::minimum(p));
+        return (link_type)__rb_tree_node_base::minimum(p);
     }
     static link_type maximum(link_type p) {
-        return reinterpret_cast<link_type>(
-            __rb_tree_node_base::maximum(p));
+        return (link_type)__rb_tree_node_base::maximum(p);
     }
 private: // aux interface
     link_type copy(link_type, link_type);
@@ -154,7 +152,7 @@ private: // rotate && rebalance
         base_ptr&, base_ptr&);
 
 public: // ctor && dtor
-    // key_compare()µ÷ÓÃcompareµÄÄ¬ÈÏ¹¹Ôì
+    // key_compare()è°ƒç”¨compareçš„é»˜è®¤æ„é€ 
     rb_tree() : node_count(0), key_compare() { empty_initialize(); }
     explicit rb_tree(const Compare& comp) : node_count(0), key_compare(comp) {
         empty_initialize();
@@ -166,7 +164,7 @@ public: // ctor && dtor
 
 public: // copy operation, 
     rb_tree(const rb_tree& rhs) : node_count(0), key_compare(rhs.key_compare) {
-        // ´´½¨Ò»¸öheader²¢Íê³É³õÊ¼»¯
+        // åˆ›å»ºä¸€ä¸ªheaderå¹¶å®Œæˆåˆå§‹åŒ–
         if (!rhs.root())
             empty_initialize();
         else {
@@ -194,7 +192,7 @@ public: // move operation
     }
 
 public: // getter
-    // ·µ»ØµÄÊ±ºò»á×Ô¶¯µ÷ÓÃconst_iterator(leftmost())
+    // è¿”å›çš„æ—¶å€™ä¼šè‡ªåŠ¨è°ƒç”¨const_iterator(leftmost())
     const_iterator begin() const noexcept { return leftmost(); }
     const_iterator end() const noexcept { return header; }
     const_iterator cbegin() const noexcept { return leftmost(); }
@@ -245,7 +243,7 @@ public: // find
 
 public: // swap
     void swap(rb_tree<Key, Value, KeyOfValue, Compare, Alloc>& rhs) {
-        std::swap(header, rhs.header); // headerÒ²ÊÇÖ¸Õë
+        std::swap(header, rhs.header); // headerä¹Ÿæ˜¯æŒ‡é’ˆ
         std::swap(node_count, rhs.node_count);
         std::swap(key_compare, rhs.key_compare);
     }
@@ -254,15 +252,15 @@ public: // swap
 
 
 // ----------------------------insert-------------
-// Ã¿´ÎÓĞĞÂÊı¾İ²åÈë£¬Ò»¶¨ÊÇÏÈÔÚÒ¶×Ó½Úµã²åÈë
-// ¸Ã½Ó¿ÚÖ»×ö²åÈë²Ù×÷£¬°Ñval²åÈëµ½yµÄ×óº¢×Ó»òÕßÓÒº¢×Ó
+// æ¯æ¬¡æœ‰æ–°æ•°æ®æ’å…¥ï¼Œä¸€å®šæ˜¯å…ˆåœ¨å¶å­èŠ‚ç‚¹æ’å…¥
+// è¯¥æ¥å£åªåšæ’å…¥æ“ä½œï¼ŒæŠŠvalæ’å…¥åˆ°yçš„å·¦å­©å­æˆ–è€…å³å­©å­
 template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
 typename rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::iterator
     rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::insert_aux(base_ptr x_, base_ptr y_, const value_type& val) {
     link_type x = reinterpret_cast<link_type>(x_);
     link_type y = reinterpret_cast<link_type>(y_);
     link_type z;
-    // ÏÈÂú×ã×ó±ß²åÈë
+    // å…ˆæ»¡è¶³å·¦è¾¹æ’å…¥
     // 
     if (y == header || x || key_compare(KeyOfValue()(val), key(y))) {
         z = create_node(val);
@@ -282,125 +280,127 @@ typename rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::iterator
             rightmost() = z;
         }
     }
-    // ¸üĞÂzµÄ½ÚµãÖ¸Õë
+    // æ›´æ–°zçš„èŠ‚ç‚¹æŒ‡é’ˆ
     parent(z) = y;
-    // ²åÈë½ÚµãÖ®ºóĞèÒª¼ì²éÊÇ·ñÆÆ»µÆ½ºâ
+    left(z) = nullptr;
+    right(z) = nullptr;
+    // æ’å…¥èŠ‚ç‚¹ä¹‹åéœ€è¦æ£€æŸ¥æ˜¯å¦ç ´åå¹³è¡¡
     rb_tree_rebalance(z, header->parent);
     ++node_count;
     return iterator(z);
 }
 
-// ½Úµã²åÈëºóĞèÒªÖØĞÂÎ¬»¤Õâ¿ÃÊ÷
-// ²»Éæ¼°val¾Í¿ÉÒÔÖ±½ÓÊ¹ÓÃbase_ptr½ÚµãÀàĞÍ
+// èŠ‚ç‚¹æ’å…¥åéœ€è¦é‡æ–°ç»´æŠ¤è¿™æ£µæ ‘
+// ä¸æ¶‰åŠvalå°±å¯ä»¥ç›´æ¥ä½¿ç”¨base_ptrèŠ‚ç‚¹ç±»å‹
 template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
 void
     rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::rb_tree_rebalance(base_ptr x, base_ptr& root) {
-    // »áµ÷ÓÃÕâ¸öº¯Êı£¬ÄÇµ±Ç°½ÚµãÓ¦¸ÃÊÇºìÉ«£¬²Å»áµ÷Õû
+    // ä¼šè°ƒç”¨è¿™ä¸ªå‡½æ•°ï¼Œé‚£å½“å‰èŠ‚ç‚¹åº”è¯¥æ˜¯çº¢è‰²ï¼Œæ‰ä¼šè°ƒæ•´
     x->color = rb_tree_red;
-    // ĞèÒªÏòÉÏµ÷ÕûµÄÇé¿ö, ·Ç¸ù½ÚµãÇÒ¸¸½ÚµãÎªºìÉ«
-    // ´ÓÕâ¸öÌõ¼ş¿ÉÒÔ¿´³ö x->parent != root,ÏÔÈ»×î¶à×æ¸¸µ½root½Úµã
+    // éœ€è¦å‘ä¸Šè°ƒæ•´çš„æƒ…å†µ, éæ ¹èŠ‚ç‚¹ä¸”çˆ¶èŠ‚ç‚¹ä¸ºçº¢è‰²
+    // ä»è¿™ä¸ªæ¡ä»¶å¯ä»¥çœ‹å‡º x->parent != root,æ˜¾ç„¶æœ€å¤šç¥–çˆ¶åˆ°rootèŠ‚ç‚¹
     while (x != root && x->parent->color == rb_tree_red) {
-        // ¿¼ÂÇ¸¸Ç×ÊÇ×æ¸¸µÄÄÄÒ»¸öº¢×Ó
-        // Çé¿öÒ»£º¸¸Ç×Îª×æ¸¸µÄ×ó×Ó
+        // è€ƒè™‘çˆ¶äº²æ˜¯ç¥–çˆ¶çš„å“ªä¸€ä¸ªå­©å­
+        // æƒ…å†µä¸€ï¼šçˆ¶äº²ä¸ºç¥–çˆ¶çš„å·¦å­
         if (x->parent == x->parent->parent->left) {
-            // ¿¼ÂÇÊåÊåµÄÑÕÉ«
+            // è€ƒè™‘å”å”çš„é¢œè‰²
             base_ptr y = x->parent->parent->right;
-            // 1¡¢ÊåÊå´æÔÚÇÒÎªºìÉ«
+            // 1ã€å”å”å­˜åœ¨ä¸”ä¸ºçº¢è‰²
             if (y && y->color == rb_tree_red)
             {
-                // Ö±½Óµ÷ÕûÑÕÉ«¸¸Ç×£¬ÊåÊåÎªºÚÉ«£¬×æ¸¸µ÷ÎªºìÉ«
+                // ç›´æ¥è°ƒæ•´é¢œè‰²çˆ¶äº²ï¼Œå”å”ä¸ºé»‘è‰²ï¼Œç¥–çˆ¶è°ƒä¸ºçº¢è‰²
                 x->parent->color = rb_tree_black;
                 y->color = rb_tree_black;
                 x->parent->parent->color = rb_tree_red;
-                // Õâ¸öÊ±ºò×æ¸¸ĞèÒª×÷Îªµ±Ç°½Úµã±»µ÷Õû
+                // è¿™ä¸ªæ—¶å€™ç¥–çˆ¶éœ€è¦ä½œä¸ºå½“å‰èŠ‚ç‚¹è¢«è°ƒæ•´
                 x = x->parent->parent;
             }
-            else // 2¡¢ÊåÊå²»´æÔÚ»òÎªºÚÉ«,ÊÇÍ¬Ò»ÖÖÇé¿ö£¬ÒòÎªnullptr±»¿´×÷ĞéÄâÒ¶×Ó½Úµã£¬ÊÇºÚÉ«
+            else // 2ã€å”å”ä¸å­˜åœ¨æˆ–ä¸ºé»‘è‰²,æ˜¯åŒä¸€ç§æƒ…å†µï¼Œå› ä¸ºnullptrè¢«çœ‹ä½œè™šæ‹Ÿå¶å­èŠ‚ç‚¹ï¼Œæ˜¯é»‘è‰²
             {
-                //£¨1£©ÎÒÊÇ¸¸Ç×µÄÓÒº¢×Ó,ĞèÒªÏÈL(×óĞı)ÔÙR(ÓÒĞı)
+                //ï¼ˆ1ï¼‰æˆ‘æ˜¯çˆ¶äº²çš„å³å­©å­,éœ€è¦å…ˆL(å·¦æ—‹)å†R(å³æ—‹)
                 if (x == x->parent->right) {
-                    // ×óĞı
-                    x = x->parent; // Ğı×ªÖ®ºó²ÅÄÜ¼ÌĞø×÷Îªº¢×Ó½Úµã
-                    // xÊÇĞèÒªĞı×ª½ÚµãµÄ×îÉÏÃæµÄ½Úµã
+                    // å·¦æ—‹
+                    x = x->parent; // æ—‹è½¬ä¹‹åæ‰èƒ½ç»§ç»­ä½œä¸ºå­©å­èŠ‚ç‚¹
+                    // xæ˜¯éœ€è¦æ—‹è½¬èŠ‚ç‚¹çš„æœ€ä¸Šé¢çš„èŠ‚ç‚¹
                     rb_tree_rotate_left(x, root);
                 }
-                // (2) ÏÖÔÚxÔÚ×ó±ß
-                // ÏÈ°ÑÑÕÉ«»¥»»£¬ÔÙĞı×ª¾ÍÆ½ºâÁË
+                // (2) ç°åœ¨xåœ¨å·¦è¾¹
+                // å…ˆæŠŠé¢œè‰²äº’æ¢ï¼Œå†æ—‹è½¬å°±å¹³è¡¡äº†
                 x->parent->color = rb_tree_black;
                 x->parent->parent->color = rb_tree_red;
-                // ÓÒĞı
+                // å³æ—‹
                 rb_tree_rotate_right(x->parent->parent, root);
             }
         }
-        else // Çé¿ö¶ş£º¸¸Ç×Îª×æ¸¸µÄÓÒ×Ó
+        else // æƒ…å†µäºŒï¼šçˆ¶äº²ä¸ºç¥–çˆ¶çš„å³å­
         {
-            // ¿¼ÂÇÊåÊåµÄÑÕÉ«
+            // è€ƒè™‘å”å”çš„é¢œè‰²
             base_ptr y = x->parent->parent->left;
-            // 1¡¢ÊåÊå´æÔÚÇÒÎªºìÉ«
+            // 1ã€å”å”å­˜åœ¨ä¸”ä¸ºçº¢è‰²
             if (y && y->color == rb_tree_red)
             {
-                // Ö±½Óµ÷ÕûÑÕÉ«¸¸Ç×£¬ÊåÊåÎªºÚÉ«£¬×æ¸¸µ÷ÎªºìÉ«
+                // ç›´æ¥è°ƒæ•´é¢œè‰²çˆ¶äº²ï¼Œå”å”ä¸ºé»‘è‰²ï¼Œç¥–çˆ¶è°ƒä¸ºçº¢è‰²
                 x->parent->color = rb_tree_black;
                 y->color = rb_tree_black;
                 x->parent->parent->color = rb_tree_red;
-                // Õâ¸öÊ±ºò×æ¸¸ĞèÒª×÷Îªµ±Ç°½Úµã±»µ÷Õû
+                // è¿™ä¸ªæ—¶å€™ç¥–çˆ¶éœ€è¦ä½œä¸ºå½“å‰èŠ‚ç‚¹è¢«è°ƒæ•´
                 x = x->parent->parent;
             }
-            else // 2¡¢ÊåÊå²»´æÔÚ»òÎªºÚÉ«,ÊÇÍ¬Ò»ÖÖÇé¿ö£¬ÒòÎªnullptr±»¿´×÷ĞéÄâÒ¶×Ó½Úµã£¬ÊÇºÚÉ«
+            else // 2ã€å”å”ä¸å­˜åœ¨æˆ–ä¸ºé»‘è‰²,æ˜¯åŒä¸€ç§æƒ…å†µï¼Œå› ä¸ºnullptrè¢«çœ‹ä½œè™šæ‹Ÿå¶å­èŠ‚ç‚¹ï¼Œæ˜¯é»‘è‰²
             {
-                //£¨1£©ÎÒÊÇ¸¸Ç×µÄ×óº¢×Ó,ĞèÒªÏÈR(ÓÒĞı)ÔÚL(×óĞı)
+                //ï¼ˆ1ï¼‰æˆ‘æ˜¯çˆ¶äº²çš„å·¦å­©å­,éœ€è¦å…ˆR(å³æ—‹)åœ¨L(å·¦æ—‹)
                 if (x == x->parent->left)
                 {
-                    // ÓÒĞı
-                    x = x->parent; // Ğı×ªÖ®ºó²ÅÄÜ¼ÌĞø×÷Îªº¢×Ó½Úµã
-                    // xÊÇĞèÒªĞı×ª½ÚµãµÄ×îÉÏÃæµÄ½Úµã
+                    // å³æ—‹
+                    x = x->parent; // æ—‹è½¬ä¹‹åæ‰èƒ½ç»§ç»­ä½œä¸ºå­©å­èŠ‚ç‚¹
+                    // xæ˜¯éœ€è¦æ—‹è½¬èŠ‚ç‚¹çš„æœ€ä¸Šé¢çš„èŠ‚ç‚¹
                     rb_tree_rotate_right(x, root);
                 }
-                // (2) ÏÖÔÚxÔÚÓÒ±ß
-                // ÏÈ°ÑÑÕÉ«»¥»»£¬ÔÙĞı×ª¾ÍÆ½ºâÁË
+                // (2) ç°åœ¨xåœ¨å³è¾¹
+                // å…ˆæŠŠé¢œè‰²äº’æ¢ï¼Œå†æ—‹è½¬å°±å¹³è¡¡äº†
                 x->parent->color = rb_tree_black;
                 x->parent->parent->color = rb_tree_red;
-                // ÓÒĞı
+                // å³æ—‹
                 rb_tree_rotate_left(x->parent->parent, root);
             }
         }
     }
-    // ¸ù½ÚµãÒ»¶¨ÎªºÚÉ«
+    // æ ¹èŠ‚ç‚¹ä¸€å®šä¸ºé»‘è‰²
     root->color = rb_tree_black;
 }
 
-// ×óĞı
+// å·¦æ—‹
 template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
 inline void
     rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::rb_tree_rotate_left(base_ptr x, base_ptr& root) {
-    // Ğı×ª½ÚµãÓÒ×Ó
+    // æ—‹è½¬èŠ‚ç‚¹å³å­
     base_ptr y = x->right;
-    // ÓÒ×ÓµÄ×óº¢×ÓÒÆµ½µ±Ç°½ÚµãµÄÓÒ×Ó
+    // å³å­çš„å·¦å­©å­ç§»åˆ°å½“å‰èŠ‚ç‚¹çš„å³å­
     x->right = y->left;
-    if (y->left) y->left->parent = x; // y->left´¦ÀíÍê
+    if (y->left) y->left->parent = x; // y->leftå¤„ç†å®Œ
 
-    // ´¦Àíx->parent
+    // å¤„ç†x->parent
     y->parent = x->parent;
     if (x == root) // x->parent == header
-        root = y; // Ïàµ±ÓÚroot´æµÄµØÖ·Ö±½Ó±ä³ÉÁËy
+        root = y; // ç›¸å½“äºrootå­˜çš„åœ°å€ç›´æ¥å˜æˆäº†y
     else if (x == x->parent->left)
         x->parent->left = y;
     else
         x->parent->right = y;
 
-    // ´¦Àíy
+    // å¤„ç†y
     y->left = x;
     x->parent = y;
 
 }
 
-// ÓÒĞı
+// å³æ—‹
 template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
 inline void
     rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::rb_tree_rotate_right(base_ptr x, base_ptr& root) {
-    // Ğı×ª½Úµã×ó×Ó
+    // æ—‹è½¬èŠ‚ç‚¹å·¦å­
     base_ptr y = x->left;
-    // ×ó×ÓµÄÓÒº¢×ÓÒÆµ½µ±Ç°½ÚµãµÄ×ó×Ó
+    // å·¦å­çš„å³å­©å­ç§»åˆ°å½“å‰èŠ‚ç‚¹çš„å·¦å­
     x->left = y->right;
     if (y->right) y->right->parent = x;
 
@@ -424,9 +424,9 @@ inline void
 template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
 typename rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::iterator
     rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::find(const key_type& k) noexcept {
-    link_type y = header; // ×îºóÒ»¸ö²»Ğ¡ÓÚkµÄ½Úµã
+    link_type y = header; // æœ€åä¸€ä¸ªä¸å°äºkçš„èŠ‚ç‚¹
     link_type x = root();
-    // findÕÒµ½µÄÓ¦¸ÃÊÇ×î×ó±ßµÈÓÚkµÄ½Úµã
+    // findæ‰¾åˆ°çš„åº”è¯¥æ˜¯æœ€å·¦è¾¹ç­‰äºkçš„èŠ‚ç‚¹
     while (x) {
         if (!key_compare(key(x), k)) {
             y = x;
@@ -437,7 +437,7 @@ typename rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::iterator
         }
     }
     iterator j = iterator(y);
-    // Ã»ÕÒµ½¾Í·µ»Øend()
+    // æ²¡æ‰¾åˆ°å°±è¿”å›end()
     return (j == end()) || key_compare(k, key(j.node)) ? end() : j;
 }
 
@@ -445,9 +445,9 @@ typename rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::iterator
 template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
 typename rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::const_iterator
     rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::find(const key_type& k) const noexcept {
-    link_type y = header; // ×îºóÒ»¸ö²»Ğ¡ÓÚkµÄ½Úµã
+    link_type y = header; // æœ€åä¸€ä¸ªä¸å°äºkçš„èŠ‚ç‚¹
     link_type x = root();
-    // findÕÒµ½µÄÓ¦¸ÃÊÇ×î×ó±ßµÈÓÚkµÄ½Úµã
+    // findæ‰¾åˆ°çš„åº”è¯¥æ˜¯æœ€å·¦è¾¹ç­‰äºkçš„èŠ‚ç‚¹
     while (x) {
         if (!key_compare(key(x), k)) {
             y = x;
@@ -458,7 +458,7 @@ typename rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::const_iterator
         }
     }
     const_iterator j = const_iterator(y);
-    // Ã»ÕÒµ½¾Í·µ»Øend()
+    // æ²¡æ‰¾åˆ°å°±è¿”å›end()
     return (j == end()) || key_compare(k, key(j.node)) ? end() : j;
 }
 
@@ -511,7 +511,7 @@ typename rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::const_iterator
 template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
 typename rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::iterator
     rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::upper_bound(const key_type& k) noexcept {
-    link_type y = header; //y > k yÔÚ×îÓÒ±ß
+    link_type y = header; //y > k yåœ¨æœ€å³è¾¹
     link_type x = root();
 
     while (x) {
@@ -531,7 +531,7 @@ typename rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::iterator
 template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
 typename rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::const_iterator
     rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::upper_bound(const key_type& k) const noexcept {
-    link_type y = header; //y > k yÔÚ×îÓÒ±ß
+    link_type y = header; //y > k yåœ¨æœ€å³è¾¹
     link_type x = root();
 
     while (x) {
@@ -564,7 +564,7 @@ template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
 inline rb_tree<Key, Value, KeyOfValue, Compare, Alloc>&
     rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::operator=(const rb_tree& rhs) {
     if (this != &rhs) {
-        clear(); // ÊÍ·ÅµÄÊÇroot()µÄËùÓĞ½Úµã£¬header»Øµ½³õÊ¼»¯
+        clear(); // é‡Šæ”¾çš„æ˜¯root()çš„æ‰€æœ‰èŠ‚ç‚¹ï¼Œheaderå›åˆ°åˆå§‹åŒ–
         key_compare = rhs.key_compare;
         if (rhs.root()) {
             root() = copy(rhs.root(), header);
@@ -576,7 +576,7 @@ inline rb_tree<Key, Value, KeyOfValue, Compare, Alloc>&
     return *this;
 }
 
-// Ö»²åÈëÔ­±¾²»´æÔÚµÄÊı¾İ
+// åªæ’å…¥åŸæœ¬ä¸å­˜åœ¨çš„æ•°æ®
 template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
 std::pair<typename rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::iterator, bool>
     rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::insert_unique(const value_type& val) {
@@ -586,22 +586,24 @@ std::pair<typename rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::iterator, bo
     bool comp = true;
     while (x) {
         y = x;
+        auto t = key(x);
+        //auto q = KeyOfValue()(val);
         comp = key_compare(KeyOfValue()(val), key(x));
         x = comp ? left(x) : right(x);
     }
     iterator j(y);
-    // yÎª´ı²åÈë½ÚµãµÄ¸¸½Úµã£¬²¢ÇÒÎªÒ¶×Ó½Úµã
-    if (comp) { // ²åÈë¸¸½ÚµãµÄ×óº¢×Ó
+    // yä¸ºå¾…æ’å…¥èŠ‚ç‚¹çš„çˆ¶èŠ‚ç‚¹ï¼Œå¹¶ä¸”ä¸ºå¶å­èŠ‚ç‚¹
+    if (comp) { // æ’å…¥çˆ¶èŠ‚ç‚¹çš„å·¦å­©å­
         if (j == begin())
             return std::pair<iterator, bool>(insert_aux(x, y, val), true);
-        else  // jÊÇ´ı²åÈë½ÚµãµÄ¸¸½Úµã£¬--jÊÇjµÄÇ°Ò»¸ö½Úµã
+        else  // jæ˜¯å¾…æ’å…¥èŠ‚ç‚¹çš„çˆ¶èŠ‚ç‚¹ï¼Œ--jæ˜¯jçš„å‰ä¸€ä¸ªèŠ‚ç‚¹
                 // --j <= val < j, 
             --j; // j <= val
     }
     // val >= j
     if (key_compare(key(j.node), KeyOfValue()(val)))
         return std::pair<iterator, bool>(insert_aux(x, y, val), true);
-    return std::pair<iterator, bool>(j, false); // ÖØ¸´Öµ
+    return std::pair<iterator, bool>(j, false); // é‡å¤å€¼
 }
 
 // 
@@ -626,11 +628,11 @@ typename rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::iterator
         // before < val && val < pos
         if (key_compare(key(before.node), KeyOfValue()(val) &&
             key_compare(KeyOfValue()(val), key(pos.node)))) {
-            // beforeÊÇposµÄ×óº¢×ÓµÄ×îÓÒ±ßµÄ½Úµã
+            // beforeæ˜¯posçš„å·¦å­©å­çš„æœ€å³è¾¹çš„èŠ‚ç‚¹
             if (!right(before.node)) {
                 return insert_aux(nullptr, before.node, val);
             }
-            else { // beforeÊÇposµÄ×æÏÈ½Úµã
+            else { // beforeæ˜¯posçš„ç¥–å…ˆèŠ‚ç‚¹
                 return insert_aux(pos.node, pos.node, val);
             }
         }
@@ -647,7 +649,7 @@ void rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::insert_unique(
     for (; first != last; ++first) insert_unique(*first);
 }
 
-// ¿ÉÒÔ²åÈëÏàÍ¬µÄÔªËØ
+// å¯ä»¥æ’å…¥ç›¸åŒçš„å…ƒç´ 
 template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
 typename rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::iterator
     rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::insert_equal(const value_type& val) {
@@ -660,11 +662,11 @@ typename rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::iterator
     return insert_aux(x, y, val);
 }
 
-// Ä³Î»ÖÃ²åÈëÄ³Öµ
+// æŸä½ç½®æ’å…¥æŸå€¼
 template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
 typename rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::iterator
     rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::insert_equal(iterator pos, const value_type& val) {
-    // ²åÈëÎ»ÖÃ[begin(), end()]
+    // æ’å…¥ä½ç½®[begin(), end()]
     if (pos.node == header->left) { // begin()
         if (key_compare(KeyOfValue()(val), key(pos.node)))
             return insert_aux(pos.node, pos.node, val);
@@ -672,7 +674,7 @@ typename rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::iterator
             insert_equal(val);
     }
     else if (pos.node == header) {
-        // ÓÒ±ßÖ±½Ó²åÈëval >= rightmost()
+        // å³è¾¹ç›´æ¥æ’å…¥val >= rightmost()
         if (!key_compare(KeyOfValue()(val), key(rightmost())))
             return insert_equal(nullptr, rightmost(), val);
         else
@@ -685,15 +687,15 @@ typename rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::iterator
         // before <= val <= pos
         if (!key_compare(KeyOfValue()(val), key(before.node) &&
             !key_compare(key(pos.node), KeyOfValue()(val))))
-            // beforeÊÇposµÄ×ó±ßº¢×ÓµÄ×îÓÒ½Úµã
+            // beforeæ˜¯posçš„å·¦è¾¹å­©å­çš„æœ€å³èŠ‚ç‚¹
             if (!right(before.node))
                 return insert_aux(nullptr, before.node, val);
-            else // posÃ»ÓĞ×ó±ßº¢×Ó
+            else // posæ²¡æœ‰å·¦è¾¹å­©å­
                 return insert_aux(pos.node, pos.node, val);
-        // posÊÇbeforeÓÒ±ßº¢×ÓµÄ×î×ó½Úµã
+        // posæ˜¯beforeå³è¾¹å­©å­çš„æœ€å·¦èŠ‚ç‚¹
         else {
             // val < before || val > pos
-            // Ã»ÓĞ°ì·¨Ö±½Ó²åÈë
+            // æ²¡æœ‰åŠæ³•ç›´æ¥æ’å…¥
             return insert_equal(val);
         }
     }
@@ -711,20 +713,20 @@ typename rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::link_type
     rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::copy(link_type source_x, link_type obj_p)
 {
     link_type top = clone_node(source_x);
-    top->parent = obj_p; // ¸´ÖÆºÃÃ¿¸ö½ÚµãµÄ¸¸Ö¸Õë
+    top->parent = obj_p; // å¤åˆ¶å¥½æ¯ä¸ªèŠ‚ç‚¹çš„çˆ¶æŒ‡é’ˆ
 
     try
     {
-        // »ØËİ·¨£¬ÏÈ´¦ÀíÓÒ±ß½Úµã
+        // å›æº¯æ³•ï¼Œå…ˆå¤„ç†å³è¾¹èŠ‚ç‚¹
         if (source_x->right != nullptr)
         {
-            // top¾ÍÊÇÏÂÒ»¸ö¸´ÖÆ½ÚµãµÄ¸¸Ç×
+            // topå°±æ˜¯ä¸‹ä¸€ä¸ªå¤åˆ¶èŠ‚ç‚¹çš„çˆ¶äº²
             top->right = copy(right(source_x), top);
-            // ÉÏÃæ½áÊø´ú±ítopµÄÓÒ±ß×ÓÊ÷ÒÑ¾­½¨ºÃ
+            // ä¸Šé¢ç»“æŸä»£è¡¨topçš„å³è¾¹å­æ ‘å·²ç»å»ºå¥½
             obj_p = top;
             source_x = left(source_x);
 
-            // ½¨ºÃtopµÄ×óÊ÷
+            // å»ºå¥½topçš„å·¦æ ‘
             while (source_x != nullptr)
             {
                 link_type y = clone_node(source_x);
@@ -746,8 +748,8 @@ typename rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::link_type
 
 // ----------------delete-----------------------
 
-// µ¥´¿É¾³ı½Úµã
-// »ØÊÕ°üº¬x½ÚµãµÄÕû¿Ã×ÓÊ÷
+// å•çº¯åˆ é™¤èŠ‚ç‚¹
+// å›æ”¶åŒ…å«xèŠ‚ç‚¹çš„æ•´æ£µå­æ ‘
 template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
 void
     rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::erase_aux(link_type x) noexcept {
@@ -759,7 +761,7 @@ void
     }
 }
 
-// ¸øÍâ½çµÄerase£¬ĞèÒª±£³ÖÆ½ºâ
+// ç»™å¤–ç•Œçš„eraseï¼Œéœ€è¦ä¿æŒå¹³è¡¡
 template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
 void
     rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::erase(iterator pos) {
@@ -778,7 +780,7 @@ typename rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::size_type
     return n;
 }
 
-// ±£³ÖÆ½ºâµÄÉ¾³ı
+// ä¿æŒå¹³è¡¡çš„åˆ é™¤
 template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
 void
     rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::erase(iterator first, iterator last) {
@@ -806,36 +808,36 @@ template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
 typename rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::base_ptr
     rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::rb_tree_rebalance_for_erase(
         base_ptr z, base_ptr& root, base_ptr& leftmost, base_ptr& rightmost) {
-    // É¾³ız½Úµã
-    base_ptr y = z; //ĞèÒªÉ¾³ıµÄ½Úµã
+    // åˆ é™¤zèŠ‚ç‚¹
+    base_ptr y = z; //éœ€è¦åˆ é™¤çš„èŠ‚ç‚¹
     base_ptr x = nullptr;
     base_ptr x_parent = nullptr;
 
     // 
-    if (!y->left) { // ÎŞ×óº¢×Ó
+    if (!y->left) { // æ— å·¦å­©å­
         x = y->right;
     }
-    else { // Ò»¶¨ÓĞ×óº¢×Ó
+    else { // ä¸€å®šæœ‰å·¦å­©å­
         if (!y->right) {
             x = y->left;
         }
-        else { // ÓĞÁ½¸öº¢×Ó,ÓÃºó¼Ì½ÚµãÌæ»»
+        else { // æœ‰ä¸¤ä¸ªå­©å­,ç”¨åç»§èŠ‚ç‚¹æ›¿æ¢
             y = y->right;
             while (y->left) y = y->left;
             x = y->right;
         }
     }
-    // y != z,ÄÇÃ´zÒ»¶¨ÓĞÁ½¸öº¢×Ó
+    // y != z,é‚£ä¹ˆzä¸€å®šæœ‰ä¸¤ä¸ªå­©å­
     if (y != z) {
-        // Ö±½Ó°ÑzµÄÊı¾İ¸³ÖµÎªy
+        // ç›´æ¥æŠŠzçš„æ•°æ®èµ‹å€¼ä¸ºy
         reinterpret_cast<link_type>(z)->value_field =
             reinterpret_cast<link_type>(y)->value_field;
         z = y;
     }
-    // °ÑÒªÉ¾³ı½ÚµãµÄº¢×ÓÌáÉÏÀ´
+    // æŠŠè¦åˆ é™¤èŠ‚ç‚¹çš„å­©å­æä¸Šæ¥
     x_parent = y->parent;
     if (x) x->parent = y->parent;
-    if (root == z) { // ÒªÉ¾³ıµÄ½ÚµãÊÇ¸ù½Úµã
+    if (root == z) { // è¦åˆ é™¤çš„èŠ‚ç‚¹æ˜¯æ ¹èŠ‚ç‚¹
         root = x;
     }
     else if (z->parent->left == z) {
@@ -856,24 +858,24 @@ typename rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::base_ptr
         else
             rightmost = __rb_tree_node_base::maximum(x);
     }
-    // Æ½ºâÑÕÉ«
-    // É¾³ıºìÉ«½Úµã²»»áÆÆ»µÆ½ºâ
-    // É¾³ı½ÚµãÑÕÉ«ÎªºÚÉ«£¬ÔòËüÒ»¶¨ÓĞĞÖµÜ½Úµã£¬²»È»ºÚÉ«²»Æ½ºâ
+    // å¹³è¡¡é¢œè‰²
+    // åˆ é™¤çº¢è‰²èŠ‚ç‚¹ä¸ä¼šç ´åå¹³è¡¡
+    // åˆ é™¤èŠ‚ç‚¹é¢œè‰²ä¸ºé»‘è‰²ï¼Œåˆ™å®ƒä¸€å®šæœ‰å…„å¼ŸèŠ‚ç‚¹ï¼Œä¸ç„¶é»‘è‰²ä¸å¹³è¡¡
     if (y->color != rb_tree_red) {
-        // ×ÔÉÏÏòÏÂµ÷Õû
-        // xÕâ±ßÉÙÒ»¸öºÚÉ«½Úµã
+        // è‡ªä¸Šå‘ä¸‹è°ƒæ•´
+        // xè¿™è¾¹å°‘ä¸€ä¸ªé»‘è‰²èŠ‚ç‚¹
         while (x != root && (!x || x->color == rb_tree_black))
         {
             if (x == x_parent->left)
             {
-                // xµÄĞÖµÜ½Úµã
+                // xçš„å…„å¼ŸèŠ‚ç‚¹
                 base_ptr w = x_parent->right;
-                // case 1 ĞÖµÜ½ÚµãµÄÑÕÉ«ÊÇºìÉ«
+                // case 1 å…„å¼ŸèŠ‚ç‚¹çš„é¢œè‰²æ˜¯çº¢è‰²
                 /*
-                (01) ½«xµÄĞÖµÜ½ÚµãÉèÎª¡°ºÚÉ«¡±¡£
-                (02) ½«xµÄ¸¸½ÚµãÉèÎª¡°ºìÉ«¡±¡£
-                (03) ¶ÔxµÄ¸¸½Úµã½øĞĞ×óĞı¡£
-                (04) ×óĞıºó£¬ÖØĞÂÉèÖÃxµÄĞÖµÜ½Úµã¡£
+                (01) å°†xçš„å…„å¼ŸèŠ‚ç‚¹è®¾ä¸ºâ€œé»‘è‰²â€ã€‚
+                (02) å°†xçš„çˆ¶èŠ‚ç‚¹è®¾ä¸ºâ€œçº¢è‰²â€ã€‚
+                (03) å¯¹xçš„çˆ¶èŠ‚ç‚¹è¿›è¡Œå·¦æ—‹ã€‚
+                (04) å·¦æ—‹åï¼Œé‡æ–°è®¾ç½®xçš„å…„å¼ŸèŠ‚ç‚¹ã€‚
                 */
                 if (w->color == rb_tree_red)
                 {
@@ -881,12 +883,12 @@ typename rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::base_ptr
                     x_parent->color = rb_tree_red;
                     rb_tree_rotate_left(x_parent, root);
                     w = x_parent->right;
-                } // ´ËÊ±xµÄĞÖµÜ½ÚµãÒÑ¾­¸Ä±ä£¬ xÈÔÈ»ÉÙÒ»¸öºÚÉ«½Úµã
-                    //ËüµÄĞÖµÜ½ÚµãÒ²Ò»¶¨ÊÇºÚÉ«½ÚµãÁË
-                //xµÄĞÖµÜ½ÚµãÊÇºÚÉ«£¬xµÄĞÖµÜ½ÚµãµÄÁ½¸öº¢×Ó¶¼ÊÇºÚÉ«¡£
+                } // æ­¤æ—¶xçš„å…„å¼ŸèŠ‚ç‚¹å·²ç»æ”¹å˜ï¼Œ xä»ç„¶å°‘ä¸€ä¸ªé»‘è‰²èŠ‚ç‚¹
+                    //å®ƒçš„å…„å¼ŸèŠ‚ç‚¹ä¹Ÿä¸€å®šæ˜¯é»‘è‰²èŠ‚ç‚¹äº†
+                //xçš„å…„å¼ŸèŠ‚ç‚¹æ˜¯é»‘è‰²ï¼Œxçš„å…„å¼ŸèŠ‚ç‚¹çš„ä¸¤ä¸ªå­©å­éƒ½æ˜¯é»‘è‰²ã€‚
                 /*
-                (01) ½«xµÄĞÖµÜ½ÚµãÉèÎª¡°ºìÉ«¡±¡£
-                (02) ÉèÖÃ¡°xµÄ¸¸½Úµã¡±Îª¡°ĞÂµÄx½Úµã¡±
+                (01) å°†xçš„å…„å¼ŸèŠ‚ç‚¹è®¾ä¸ºâ€œçº¢è‰²â€ã€‚
+                (02) è®¾ç½®â€œxçš„çˆ¶èŠ‚ç‚¹â€ä¸ºâ€œæ–°çš„xèŠ‚ç‚¹â€
                 */
                 if ((!w->left || w->left->color == rb_tree_black) &&
                     (!w->right || w->right->color == rb_tree_black))
@@ -897,13 +899,13 @@ typename rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::base_ptr
                 }
                 else
                 {
-                    // xµÄĞÖµÜ½ÚµãÊÇºÚÉ«£»
-                    // xµÄĞÖµÜ½ÚµãµÄ×óº¢×ÓÊÇºìÉ«£¬ÓÒº¢×ÓÊÇºÚÉ«µÄ¡£
+                    // xçš„å…„å¼ŸèŠ‚ç‚¹æ˜¯é»‘è‰²ï¼›
+                    // xçš„å…„å¼ŸèŠ‚ç‚¹çš„å·¦å­©å­æ˜¯çº¢è‰²ï¼Œå³å­©å­æ˜¯é»‘è‰²çš„ã€‚
                     /*
-                    (01) ½«xĞÖµÜ½ÚµãµÄ×óº¢×ÓÉèÎª¡°ºÚÉ«¡±¡£
-                    (02) ½«xĞÖµÜ½ÚµãÉèÎª¡°ºìÉ«¡±¡£
-                    (03) ¶ÔxµÄĞÖµÜ½Úµã½øĞĞÓÒĞı¡£
-                    (04) ÓÒĞıºó£¬ÖØĞÂÉèÖÃxµÄĞÖµÜ½Úµã¡£
+                    (01) å°†xå…„å¼ŸèŠ‚ç‚¹çš„å·¦å­©å­è®¾ä¸ºâ€œé»‘è‰²â€ã€‚
+                    (02) å°†xå…„å¼ŸèŠ‚ç‚¹è®¾ä¸ºâ€œçº¢è‰²â€ã€‚
+                    (03) å¯¹xçš„å…„å¼ŸèŠ‚ç‚¹è¿›è¡Œå³æ—‹ã€‚
+                    (04) å³æ—‹åï¼Œé‡æ–°è®¾ç½®xçš„å…„å¼ŸèŠ‚ç‚¹ã€‚
                     */
                     if (!w->right || w->right->color == rb_tree_black)
                     {
@@ -912,14 +914,14 @@ typename rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::base_ptr
                         w->color = rb_tree_red;
                         rb_tree_rotate_right(w, root);
                         w = x_parent->right;
-                    } // ĞÖµÜ½ÚµãÎªºÚÉ«£¬ÓÒ±ßº¢×ÓÊÇºìÉ«
-                        // xµÄĞÖµÜ½ÚµãÊÇºÚÉ«£»xµÄĞÖµÜ½ÚµãµÄÓÒº¢×ÓÊÇºìÉ«µÄ£¬xµÄĞÖµÜ½ÚµãµÄ×óº¢×ÓÈÎÒâÑÕÉ«¡£
+                    } // å…„å¼ŸèŠ‚ç‚¹ä¸ºé»‘è‰²ï¼Œå³è¾¹å­©å­æ˜¯çº¢è‰²
+                        // xçš„å…„å¼ŸèŠ‚ç‚¹æ˜¯é»‘è‰²ï¼›xçš„å…„å¼ŸèŠ‚ç‚¹çš„å³å­©å­æ˜¯çº¢è‰²çš„ï¼Œxçš„å…„å¼ŸèŠ‚ç‚¹çš„å·¦å­©å­ä»»æ„é¢œè‰²ã€‚
                     /*
-                    (01) ½«x¸¸½ÚµãÑÕÉ«¸³Öµ¸ø xµÄĞÖµÜ½Úµã¡£
-                    (02) ½«x¸¸½ÚµãÉèÎª¡°ºÚÉ«¡±¡£
-                    (03) ½«xĞÖµÜ½ÚµãµÄÓÒ×Ó½ÚÉèÎª¡°ºÚÉ«¡±¡£
-                    (04) ¶ÔxµÄ¸¸½Úµã½øĞĞ×óĞı¡£
-                    (05) ÉèÖÃ¡°x¡±Îª¡°¸ù½Úµã¡±¡£
+                    (01) å°†xçˆ¶èŠ‚ç‚¹é¢œè‰²èµ‹å€¼ç»™ xçš„å…„å¼ŸèŠ‚ç‚¹ã€‚
+                    (02) å°†xçˆ¶èŠ‚ç‚¹è®¾ä¸ºâ€œé»‘è‰²â€ã€‚
+                    (03) å°†xå…„å¼ŸèŠ‚ç‚¹çš„å³å­èŠ‚è®¾ä¸ºâ€œé»‘è‰²â€ã€‚
+                    (04) å¯¹xçš„çˆ¶èŠ‚ç‚¹è¿›è¡Œå·¦æ—‹ã€‚
+                    (05) è®¾ç½®â€œxâ€ä¸ºâ€œæ ¹èŠ‚ç‚¹â€ã€‚
                     */
                     w->color = x_parent->color;
                     x_parent->color = rb_tree_black;
