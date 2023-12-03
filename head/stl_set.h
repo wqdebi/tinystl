@@ -2,25 +2,25 @@
 #include<algorithm>
 #include"std_alloc.h"
 #include"rbtree.h"
-/////ºóĞøÉ¾³ı£¡£¡£¡£¡£¡£¡
-template <class T>
-struct identity
-{
-	identity() {}
-	const T& operator()(const T& val) {
-		return val;
-	}
-};
+/////åç»­åˆ é™¤ï¼ï¼ï¼ï¼ï¼ï¼
+//template <class T>
+//struct identity
+//{
+//	identity() {}
+//	const T& operator()(const T& val) {
+//		return val;
+//	}
+//};
 
 template<class Key, class Compare = std::less<Key>, class Alloc = alloc>
 class set {
 public:
-	using key_value = Key;
+	using key_type = Key;
 	using value_type = Key;
 	using key_compare = Compare;
 	using value_compare = Compare;
 private:
-	using rep_type = rb_tree<key_value, value_type, identity<value_type>, key_compare, Alloc>;
+	using rep_type = rb_tree<key_type, value_type, identity<value_type>, key_compare, Alloc>;
 	rep_type t;
 public:
 	typedef typename rep_type::const_pointer pointer;
@@ -76,7 +76,7 @@ public:
 		typedef typename rep_type::iterator rep_iterator;
 		t.erase((rep_iterator&)position);
 	}
-	size_type erase(const key_value& x) {
+	size_type erase(const key_type& x) {
 		return t.erase(x);
 	}
 	void erase(iterator first, iterator last) {
@@ -98,7 +98,7 @@ public:
 		return t.lower_bound(x);
 	}
 
-	iterator upper_bound(const key_value& x) {
+	iterator upper_bound(const key_type& x) {
 		return t.upper_bound(x);
 	}
 	std::pair<iterator, iterator>equal_range(const key_type& x) {
