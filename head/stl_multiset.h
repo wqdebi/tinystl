@@ -2,23 +2,23 @@
 #include<algorithm>
 #include"std_alloc.h"
 #include"rbtree.h"
-template <class T>
-struct identity
-{
-	identity() {}
-	const T& operator()(const T& val) {
-		return val;
-	}
-};
+//template <class T>
+//struct identity
+//{
+//	identity() {}
+//	const T& operator()(const T& val) {
+//		return val;
+//	}
+//};
 template<class Key, class Compare = std::less<Key>, class Alloc = alloc>
-class multset {
+class multiset {
 public:
-	using key_value = Key;
+	using key_type = Key;
 	using value_type = Key;
 	using key_compare = Compare;
 	using value_compare = Compare;
 private:
-	using rep_type = rb_tree<key_value, value_type, identity<value_type>, key_compare, Alloc>;
+	using rep_type = rb_tree<key_type, value_type, identity<value_type>, key_compare, Alloc>;
 	rep_type t;
 public:
 	typedef typename rep_type::const_pointer pointer;
@@ -30,14 +30,14 @@ public:
 	typedef typename rep_type::size_type size_type;
 	typedef typename rep_type::difference_type difference_type;
 
-	multset() :t(Compare()) {}
-	explicit multset(const Compare& comp) :t(comp) {}
+	multiset() :t(Compare()) {}
+	explicit multiset(const Compare& comp) :t(comp) {}
 	template<class InputIterator>
-	multset(InputIterator first, InputIterator last) :t(Compare()) {
+	multiset(InputIterator first, InputIterator last) :t(Compare()) {
 		t.insert_equal(first, last);
 	}
 	template<class InputIterator>
-	multset(InputIterator first, InputIterator last, const Compare& comp) : t(comp) {
+	multiset(InputIterator first, InputIterator last, const Compare& comp) : t(comp) {
 		t.insert_equal(first, last);
 	}
 
@@ -45,7 +45,7 @@ public:
 	iterator end() { return t.end(); }
 	bool empty() { return t.empty(); }
 	size_type size() { return t.size(); }
-	void swap(set<Key, Compare, Alloc>& x) {
+	void swap(multiset<Key, Compare, Alloc>& x) {
 		t.swap(x.t);
 	}
 
@@ -65,7 +65,7 @@ public:
 		typedef typename rep_type::iterator rep_iterator;
 		t.erase((rep_iterator&)position);
 	}
-	size_type erase(const key_value& x) {
+	size_type erase(const key_type& x) {
 		return t.erase(x);
 	}
 	void erase(iterator first, iterator last) {
@@ -87,25 +87,25 @@ public:
 		return t.lower_bound(x);
 	}
 
-	iterator upper_bound(const key_value& x) {
+	iterator upper_bound(const key_type& x) {
 		return t.upper_bound(x);
 	}
 	std::pair<iterator, iterator>equal_range(const key_type& x) {
 		return t.equal_range(x);
 	}
-	friend bool operator== <>(const multset&, const multset&);
-	friend bool operator< <>(const multset&, const multset&);
+	friend bool operator== <>(const multiset&, const multiset&);
+	friend bool operator< <>(const multiset&, const multiset&);
 };
 template<class Key, class Compare, class Alloc>
-inline bool operator==(const multset<Key, Compare, Alloc>& x,
-	const multset<Key, Compare, Alloc>& y)
+inline bool operator==(const multiset<Key, Compare, Alloc>& x,
+	const multiset<Key, Compare, Alloc>& y)
 {
 	return x.t == y.t;
 }
 
 template<class Key, class Compare, class Alloc>
-inline bool operator<(const multset<Key, Compare, Alloc>& x,
-	const multset<Key, Compare, Alloc>& y)
+inline bool operator<(const multiset<Key, Compare, Alloc>& x,
+	const multiset<Key, Compare, Alloc>& y)
 {
 	return x.t < y.t;
 }
