@@ -3,16 +3,16 @@
 #include<algorithm>
 #include"std_alloc.h"
 #include"rbtree.h"
-/////ºóĞøÉ¾³ı£¡£¡£¡£¡£¡£¡
+/////åç»­åˆ é™¤ï¼ï¼ï¼ï¼ï¼ï¼
 template<class Arg, class Result>
 struct unary_function {
 	typedef Arg argument_type;
 	typedef Result result_type;
 };
-template<class T>
-struct identity : public unary_function<T, T> {
-	const T& operator()(const T& x) { return x; }
-};
+//template<class T>
+//struct identity : public unary_function<T, T> {
+//	const T& operator()(const T& x) { return x; }
+//};
 template<class Pair>
 struct select1st : public unary_function<Pair, typename Pair::first_type> {
 	const typename Pair::first_type& operator()(const Pair& x) {
@@ -30,14 +30,14 @@ struct binary_function {
 template<class Key, class T, class Compare = std::less<Key>, class Alloc = alloc>
 class multimap {
 public:
-	using key_value = Key;
+	using key_type = Key;
 	using data_type = T;
 	using mapped_type = T;
-	using value_type = pair<const Key, T>;
+	using value_type = std::pair<const Key, T>;
 	using key_compare = Compare;
 
 	class value_compare :public binary_function<value_type, value_type, bool> {
-		friend class map<Key, T, Compare, Alloc>;
+		friend class multimap<Key, T, Compare, Alloc>;
 	protected:
 		Compare comp;
 		value_compare(Compare c) :comp(c) {}
@@ -47,7 +47,7 @@ public:
 		}
 	};
 private:
-	using rep_type = rb_tree<key_value, value_type, std::select1st<value_type>, key_compare, Alloc>;
+	using rep_type = rb_tree<key_type, value_type, select1st<value_type>, key_compare, Alloc>;
 	rep_type t;
 
 public:
@@ -80,7 +80,7 @@ public:
 	iterator end() { return t.end(); }
 	bool empty() { return t.empty(); }
 	size_type size() { return t.size(); }
-	void swap(multmap<Key, Compare, Alloc>& x) {
+	void swap(multimap<Key, Compare, Alloc>& x) {
 		t.swap(x.t);
 	}
 
@@ -100,7 +100,7 @@ public:
 	{
 		t.erase(position);
 	}
-	size_type erase(const key_value& x) {
+	size_type erase(const key_type& x) {
 		return t.erase(x);
 	}
 	void erase(iterator first, iterator last) {
@@ -121,7 +121,7 @@ public:
 		return t.lower_bound(x);
 	}
 
-	iterator upper_bound(const key_value& x) {
+	iterator upper_bound(const key_type& x) {
 		return t.upper_bound(x);
 	}
 	std::pair<iterator, iterator>equal_range(const key_type& x) {
