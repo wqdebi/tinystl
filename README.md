@@ -90,4 +90,9 @@ day19
 更新了stl_algobase.h的一部分算法
 
 day20
+
 更新了stl_algobase.h的一部分算法，search待实现，reverse_iterator待实现
+
+day21
+
+更新了stl_algobase.h的一部分算法
