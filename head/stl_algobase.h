@@ -3,7 +3,9 @@
 #include<algorithm>
 #include"type_traits.h"
 #include <string.h>
+#include <stdlib.h>
 #include"stl_heap.h"
+#define __stl_threshold 16
 //判断相等
 template<class InputIterator1, class InputIterator2>
 inline bool equal(InputIterator1 first1, InputIterator1 last1,
@@ -1183,4 +1185,241 @@ bool binary_search(ForwardIterator first, ForwardIterator last,
     const T& value, Compare comp) {
     ForwardIterator i = lower_bound(first, last, value, comp);
     return i != last && !comp(value, i);
+}
+
+//下一个排序
+template<class BidirectionalIterator>
+bool next_permutation(BidirectionalIterator first, BidirectionalIterator last)
+{
+    if (first == last)
+        return false;
+    BidirectionalIterator i = first;
+    ++i;
+    if (i == last)
+        return false;
+    i = last;
+    --i;
+    for (;;) {
+        BidirectionalIterator ii = i;
+        --i;
+        if (*i < *ii)
+        {
+            BidirectionalIterator j = last;
+            while (!(*i < *--j));
+            iter_swap1(i, j);
+            reverse(ii, last);
+            return true;
+        }
+        if (i == first) {
+            reverse(first, last);
+            return false;
+        }
+    }
+}
+
+// 前一个排序
+template<class BidirectionalIterator>
+bool prev_permutation(BidirectionalIterator first, BidirectionalIterator last)
+{
+    if (first == last)
+        return false;
+    BidirectionalIterator i = first;
+    ++i;
+    if (i == last)
+        return false;
+    i = last;
+    --i;
+    for (;;) {
+        BidirectionalIterator ii = i;
+        --i;
+        if (*ii < *i)
+        {
+            BidirectionalIterator j = last;
+            while (!(*--j < *i));
+            iter_swap1(i, j);
+            reverse(ii, last);
+            return true;
+        }
+        if (i == first) {
+            reverse(first, last);
+            return false;
+        }
+    }
+}
+
+//随机打乱
+template<class RandomAccessIterator, class Distance>
+void __random_shuffle(RandomAccessIterator first, RandomAccessIterator last,
+    Distance*) {
+    if (first == last)
+        return;
+    srand((unsigned int)time(0));
+    for (RandomAccessIterator i = first + 1; i != last; ++i)
+        iter_swap1(i, first + Distance(rand() % ((i - first) + 1)));
+}
+
+template<class RandomAccessIterator>
+inline void random_shuffle(RandomAccessIterator first,
+    RandomAccessIterator last) {
+    __random_shuffle(first, last, distance_type(first));
+}
+
+template<class RandomAccessIterator, class RandomNumberGenerator>
+void random_shuffle(RandomAccessIterator first, RandomAccessIterator last,
+    RandomAccessIterator& rand) {
+    if (first == last)
+        return;
+    srand((unsigned int)time(0));
+    for (RandomAccessIterator i = first + 1; i != last; ++i)
+        iter_swap1(i, first + rand((i - first) + 1));
+}
+
+//找出前middle-first个最小元素
+template<class RandomAccessIterator, class T>
+void __partial_sort(RandomAccessIterator first,
+    RandomAccessIterator middle, RandomAccessIterator last, T*) {
+    make_heap(first, middle);
+    for (RandomAccessIterator i = middle; i < last; ++i)
+        if (*i < *first)
+            __pop_heap(first, middle, i, T(*i), distance_type(first));
+    sort_heap(first, middle);
+}
+
+template<class RandomAccessIterator>
+inline void partial_sort(RandomAccessIterator first,
+    RandomAccessIterator middle, RandomAccessIterator last) {
+    __partial_sort(RandomAccessIterator first, RandomAccessIterator middle,
+        RandomAccessIterator last, T*);
+}
+
+//插入排序
+template<class RandomAccessIterator, class T>
+void __unguarded_linear_insert(RandomAccessIterator last, T value)
+{
+    RandomAccessIterator next = last;
+    --next;
+    while (value < *next) {
+        *last = *next;
+        last = next;
+        --next;
+    }
+    *last = value;
+}
+
+template<class RandomAccessIterator, class T>
+inline void __linear_insert(RandomAccessIterator first, RandomAccessIterator last, T*)
+{
+    T value = *last;
+    if (value < *first) {
+        copy_backward(first, last, last + 1);
+        *first = value;
+    }
+    else
+        __unguarded_linear_insert(last, value);
+}
+
+template<class RandomAccessIterator>
+void __insertion_sort(RandomAccessIterator first,
+    RandomAccessIterator last) {
+    if (first == last)
+        return;
+    fpr(RandomAccessIterator i = first + 1; i != last; ++i)
+        __linear_insert(first, i, value_type(first));
+}
+
+//三点取中值
+template<class T>
+inline const T& __median(const T& a, const T& b, const T& c)
+{
+    if (a < b)
+        if (b < c)
+            return b;
+        else if (a < c)
+            return c;
+        else
+            return a;
+    else if (a < c)
+        return a;
+    else if (b < c)
+        return c;
+    else
+        return b;
+}
+
+//分割，大于一个阈值的在右边，小于的在左边
+template<class RandomAccessIterator, class T>
+RandomAccessIterator __unguarded_partition(RandomAccessIterator first,
+    RandomAccessIterator last, T pivot)
+{
+    while (true) {
+        while (*first < pivot)
+            ++first;
+        --last;
+        while (pivot < *last)
+            --last;
+        if (!(first < last))
+            return fisrt;
+        iter_swap1(first, last);
+        ++first;
+    }
+}
+//排序
+template<class Size>
+inline Size __lg(Size n)
+{
+    Size k;
+    for (k = 0; n > 1; n >> 1)
+        ++k;
+    return k;
+}
+
+template <class RandomAccessIterator, class T, class Compare>
+void __unguarded_insertion_sort_aux(RandomAccessIterator first,
+    RandomAccessIterator last,
+    T*, Compare comp) {
+    for (RandomAccessIterator i = first; i != last; ++i)
+        __unguarded_linear_insert(i, T(*i), comp);
+}
+
+template <class RandomAccessIterator>
+inline void __unguarded_insertion_sort(RandomAccessIterator first,
+    RandomAccessIterator last) {
+    __unguarded_insertion_sort_aux(first, last, value_type(first));
+}
+
+template <class RandomAccessIterator>
+void __final_insertion_sort(RandomAccessIterator first,
+    RandomAccessIterator last) {
+    if (last - first > __stl_threshold) {
+        __insertion_sort(first, first + __stl_threshold);
+        __unguarded_insertion_sort(first + __stl_threshold, last);
+    }
+    else
+        __insertion_sort(first, last);
+}
+
+template <class RandomAccessIterator, class T, class Size>
+void __introsort_loop(RandomAccessIterator first,
+    RandomAccessIterator last, T*,
+    Size depth_limit) {
+    while (last - first > __stl_threshold) {
+        if (depth_limit == 0) {
+            partial_sort(first, last, last);
+            return;
+        }
+        --depth_limit;
+        RandomAccessIterator cut = __unguarded_partition
+        (first, last, T(__median(*first, *(first + (last - first) / 2),
+            *(last - 1))));
+        __introsort_loop(cut, last, value_type(first), depth_limit);
+        last = cut;
+    }
+}
+
+template <class RandomAccessIterator>
+inline void sort(RandomAccessIterator first, RandomAccessIterator last) {
+    if (first != last) {
+        __introsort_loop(first, last, value_type(first), __lg(last - first) * 2);
+        __final_insertion_sort(first, last);
+    }
 }
