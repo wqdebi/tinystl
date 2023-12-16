@@ -7,8 +7,17 @@
 #include "rb_tree_iterator.h"
 #include "std_alloc.h"
 #include "std_construct.h"
-
-template <class Key, class Value, class KeyOfValue, class Compare, class Alloc = alloc>
+#include"stl_function.h"
+/////后续删除！！！！！！
+//template <class T>
+//struct identity
+//{
+//    identity() {}
+//    const T& operator()(const T& val) {
+//        return val;
+//    }
+//};
+template <class Key, class Value, class KeyOfValue = identity<Key>, class Compare = std::less<Key>, class Alloc = alloc>
 class rb_tree {
 private:
     using base_ptr = __rb_tree_node_base*;
