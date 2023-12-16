@@ -1423,3 +1423,77 @@ inline void sort(RandomAccessIterator first, RandomAccessIterator last) {
         __final_insertion_sort(first, last);
     }
 }
+
+//返回一对迭代器，分别为lower_bound和upper_bound的返回值
+template<class ForwardIterator, class T, class Distance>
+std::pair<ForwardIterator, ForwardIterator> __equal_range(
+    ForwardIterator first, ForwardIterator last, const T& value, Distance*, forward_iterator_tag)
+{
+    Distance len = 0;
+    distance(first, last, len);
+    Distance half;
+    ForwardIterator middle, left, right;
+    while (len > 0)
+    {
+        half = len >> 1;
+        middle = first;
+        advance(middle, half);
+        if (*middle < value)
+        {
+            first = middle;
+            ++first;
+            len = len - half - 1;
+        }
+        else if (value < *middle)
+        {
+            len = half;
+        }
+        else
+        {
+            left = lower_bound(first, middle, value);
+            advance(first, len);
+            right = upper_bound(++middle, first, value);
+            return std::pair<ForwardIterator, ForwardIterator>(left, right);
+        }
+    }
+    return std::pair<ForwardIterator, ForwardIterator>(first, first);
+}
+
+template<class RandomAccseeIterator, class T, class Distance>
+std::pair<RandomAccseeIterator, RandomAccseeIterator> __equal_range(
+    RandomAccseeIterator first, RandomAccseeIterator last, const T& value, Distance*, random_access_iterator_tag)
+{
+    Distance len = last - first;
+    Distance half;
+    RandomAccseeIterator middle, left, right;
+    while (len > 0)
+    {
+        half = len >> 1;
+        middle = first + half;
+        if (*middle < value)
+        {
+            first = middle + 1;
+            len = len - half - 1;
+        }
+        else if (value < *middle)
+        {
+            len = half;
+        }
+        else
+        {
+            left = lower_bound(first, middle, value);
+            right = upper_bound(++middle, first + len, value);
+            return std::pair<RandomAccseeIterator, RandomAccseeIterator>(left, right);
+        }
+    }
+    return std::pair<RandomAccseeIterator, RandomAccseeIterator>(first, first);
+}
+
+template<class ForwardIterator, class T>
+inline std::pair<ForwardIterator, ForwardIterator> equal_range(
+    ForwardIterator first, ForwardIterator last, const T& value) 
+{
+    return __equal_range(first, last, distance_type(first), iterator_category(first));
+}
+
+//
