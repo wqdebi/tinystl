@@ -349,54 +349,129 @@
 #include <iostream>
 #include <memory>
 #include "rbtree.h"
+#include<vector>
+#include"stl_numeric.h"
+#include "stl_function.h"
+#include<functional>
+//#include"stl_algobase.h"
+//using rep_type =
+//rb_tree<int, int>;
+//
+//void printTree(const rep_type& t) {
+//    std::cout << "顺序输出结果：" << std::endl;
+//    typename rep_type::const_iterator it = t.begin();
+//    while (it != t.end()) {
+//        std::cout << *it << " ";
+//        ++it;
+//    }
+//    std::cout << std::endl;
+//}
+//int main() {
+//    rep_type t;
+//    /*t.insert_unique(5);
+//    t.insert_unique(6);
+//    t.insert_unique(1);
+//    t.insert_unique(0);
+//    t.insert_unique(3);
+//    t.insert_unique(2);
+//    printTree(t);
+//    t.erase(5);
+//    t.erase(0);
+//    printTree(t);*/
+//    t.insert_equal(0);
+//    t.insert_equal(1);
+//    t.insert_equal(4);
+//    t.insert_equal(0);
+//    t.insert_equal(5);
+//    t.insert_equal(8);
+//    t.insert_equal(10);
+//    printTree(t);
+//    t.erase(0);
+//    printTree(t);
+//    std::pair<int, int>s;
+//    return 0;
+//}
 
-
-
-template <class T>
-struct identity
-{
-    identity() {}
-    const T& operator()(const T& val) {
-        return val;
-    }
-};
-
-using rep_type =
-rb_tree<int, int, identity<int>, std::less<int>>;
-
-void printTree(const rep_type& t) {
-    std::cout << "顺序输出结果：" << std::endl;
-    typename rep_type::const_iterator it = t.begin();
-    while (it != t.end()) {
-        std::cout << *it << " ";
-        ++it;
+//int main() {
+    /*std::vector<int> a{0,1,2,3,4,5,6,7,8,9,10};
+    int x1 = accumulate(a.begin(), a.end(), 0);
+    std::cout << x1 << std::endl;
+    int x2 = accumulate(a.begin(), a.end(), 0, std::plus<int>());
+    std::cout << x2 << std::endl;
+    std::vector<int>b(11);
+    adjacent_difference(a.begin(), a.end(), b.begin());
+    for (int i = 0; i < 11; ++i) {
+        std::cout << b[i] << " ";
     }
     std::cout << std::endl;
-}
-
-int main() {
-
-
-    rep_type t;
-    /*t.insert_unique(5);
-    t.insert_unique(6);
-    t.insert_unique(1);
-    t.insert_unique(0);
-    t.insert_unique(3);
-    t.insert_unique(2);
-    printTree(t);
-    t.erase(5);
-    t.erase(0);
-    printTree(t);*/
-    t.insert_equal(0);
-    t.insert_equal(1);
-    t.insert_equal(4);
-    t.insert_equal(0);
-    t.insert_equal(5);
-    t.insert_equal(8);
-    t.insert_equal(10);
-    printTree(t);
-    t.erase(0);
-    printTree(t);
-    return 0;
-}
+    std::vector<int>c(11);
+    adjacent_difference(a.begin(), a.end(), c.begin(), std::minus<int>());
+    for (int i = 0; i < 11; ++i) {
+        std::cout << b[i] << " ";
+    }
+    std::cout << std::endl;
+    std::vector<int> d(5, 2);
+    std::vector<int> f(5, 2);
+    std::cout << inner_product(d.begin(), d.end(), f.begin(), 0) << std::endl;
+    std::cout << inner_product(d.begin(), d.end(), f.begin(), 0, std::plus<int>(), std::multiplies<int>()) << std::endl;
+    std::vector<int>g(5, 2);
+    std::vector<int>h(5, 0);
+    partial_sum(g.begin(), g.end(), h.begin());
+    partial_sum(g.begin(), g.end(), h.begin(), std::plus<int>());
+    for (int i = 0; i < 5; ++i) {
+        std::cout << h[i] << " ";
+    }
+    std::cout << std::endl;
+    std::cout << power(2, 2);
+    std::cout << std::endl;
+    std::vector<int>m(5, 5);
+    std::vector<int>n(5, 0);
+    iter_swap1(m.begin(), n.begin());
+    for (int i = 0; i < 5; ++i) {
+        std::cout << m[i] << " ";
+    }
+    std::cout << std::endl;
+    for (int i = 0; i < 5; ++i) {
+        std::cout << n[i] << " ";
+    }
+    std::cout << std::endl;*/
+    //std::cout << equal1(m.begin(), m.end(), n.begin());
+    //for (int i = 0; i < 5; ++i)
+    //    std::cout << a[0] << ' ';
+//    plus<int> plus1;
+//    minus<int> minus1;
+//    multiplies<int> multiplies1;
+//    divides<int> divides1;
+//    modulus<int> modulus1;
+//    negate<int> negate1;
+//    std::cout << plus1(1, 2) << std::endl;
+//    std::cout << minus1(1, 2) << std::endl;
+//    std::cout << multiplies1(1, 2) << std::endl;
+//    std::cout << divides1(1, 2) << std::endl;
+//    std::cout << modulus1(1, 2) << std::endl;
+//    std::cout << negate1(1) << std::endl;
+//    equal_to<int> equal_to1;
+//    not_equal_to<int> not_equal_to1;
+//    greater<int> greater1;
+//    less<int> less1;
+//    greater_equal<int> greater_equal1;
+//    less_equal<int> less_equal1;
+//    std::cout << equal_to1(1,1) << std::endl;
+//    std::cout << equal_to1(1, 0) << std::endl;
+//    std::cout << not_equal_to1(1,1) << std::endl;
+//    std::cout << not_equal_to1(1,0) << std::endl;
+//    std::cout << greater1(1,1) << std::endl;
+//    std::cout << greater1(1, 0) << std::endl;
+//    std::cout << less1(1,1) << std::endl;
+//    std::cout << less1(0, 1) << std::endl;
+//    std::cout << greater_equal1(1, 2) << std::endl;
+//    std::cout << greater_equal1(1, 0) << std::endl;
+//    std::cout << less_equal1(1, 5) << std::endl;
+//    std::cout << less_equal1(1, 0) << std::endl;
+//    std::cout << "--------------------------" << std::endl;
+//    std::cout << logical_and<int>()(1, 1) << std::endl;
+//    std::cout << logical_and<int>()(1, 0) << std::endl;
+//    std::cout << logical_or<int>()(0, 0) << std::endl;
+//    std::cout << logical_or<int>()(1, 0) << std::endl;
+//    std::cout << logical_not<int>()(1) << std::endl;
+//}
